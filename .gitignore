@@ -117,3 +117,4 @@ checkpoints/
 *.tar
 *.pth.tar
 
+**/events.out.tfevents.*
