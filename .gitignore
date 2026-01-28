@@ -118,3 +118,4 @@ checkpoints/
 *.pth.tar
 
 **/events.out.tfevents.*
+run_test
