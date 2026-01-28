@@ -208,7 +208,9 @@ class Trainer(object):
 
         with torch.inference_mode():
             area_acc = self.evaluator.area_accuracy()
-        self.writer.add_scalar('val/total_loss_epoch', test_loss, epoch)
+        self.writer.add_scalar('val/total_loss_epoch', test_loss + test_area_loss, epoch)
+        self.writer.add_scalar('val/seg_loss_epoch', test_loss, epoch)
+        self.writer.add_scalar('val/area_loss_epoch', test_area_loss, epoch)
         self.writer.add_scalar('val/mIoU', mIoU, epoch)
         self.writer.add_scalar('val/Acc', Acc, epoch)
         self.writer.add_scalar('val/Acc_class', Acc_class, epoch)
