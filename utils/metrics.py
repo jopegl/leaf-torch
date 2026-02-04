@@ -85,28 +85,33 @@ class Evaluator(object):
         }
 
     
-    def area_rer_batch(self, final_area_pred, area_target, target_mask):
+    def area_rer_batch(self, final_area_pred, area_target, target_mask, pred_mask, mode = 'pred'):
         B = final_area_pred.shape[0]
 
         for i in range(B):
 
-            # -------- FOLHA --------
-            leaf_mask = (target_mask[i] == 1)
-            A_est_leaf = final_area_pred[i,0][leaf_mask].sum().item()
-            A_gt_leaf  = area_target[i,0][leaf_mask].sum().item()
+            if mode == 'gt':
+                leaf_mask = (target_mask[i] == 1)
+                marker_mask = target_mask[i] == 2
+            else:
+                leaf_mask = pred_mask[i] == 1
+                marker_mask = pred_mask[i] == 2
+            
+            if leaf_mask.sum() > 0:
+                A_est_leaf = final_area_pred[i,0][leaf_mask].sum() 
+                A_gt_leaf  = area_target[i,0][leaf_mask].sum() 
 
-            if A_gt_leaf > 0:
-                rer_leaf = abs(A_est_leaf - A_gt_leaf) / A_gt_leaf
-                self.rer_leaf.append(rer_leaf)
+                if A_gt_leaf > 0:
+                    rer_leaf = abs(A_est_leaf - A_gt_leaf) / A_gt_leaf
+                    self.rer_leaf.append(rer_leaf)
 
-            # -------- MARCADOR --------
-            marker_mask = (target_mask[i] == 2)
-            A_est_marker = final_area_pred[i,0][marker_mask].sum().item()
-            A_gt_marker  = area_target[i,0][marker_mask].sum().item()
+            if marker_mask.sum() > 0:
+                A_est_marker = final_area_pred[i,0][marker_mask].sum() 
+                A_gt_marker  = area_target[i,0][marker_mask].sum() 
 
-            if A_gt_marker > 0:
-                rer_marker = abs(A_est_marker - A_gt_marker) / A_gt_marker
-                self.rer_marker.append(rer_marker)
+                if A_gt_marker > 0:
+                    rer_marker = abs(A_est_marker - A_gt_marker) / A_gt_marker
+                    self.rer_marker.append(rer_marker)
 
     def area_accuracy(self):
         if self.area_pixel_count == 0:

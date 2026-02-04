@@ -99,6 +99,9 @@ class Trainer(object):
         tbar = tqdm(self.train_loader, total=len(self.train_loader), ncols=80)
 
         num_img_tr = len(self.train_loader.dataset)
+
+        total_loss_epoch = 0.0
+
         print("Num images in train loader: ", num_img_tr)
         for i, sample in enumerate(tbar):
             image, target, area_target = sample
@@ -109,9 +112,7 @@ class Trainer(object):
             seg_out, _, area_out = self.model(image)
 
             with torch.no_grad():
-                mask_gt = ((target == 1) | (target == 2)).float().unsqueeze(1)
-                leaf_mask = (target == 1).float().unsqueeze(1) #separar mascaras de folha e marcador
-                
+                mask_gt = ((target == 1) | (target == 2)).float().unsqueeze(1)     
 
             loss = self.criterion(seg_out, target)
             area_loss_with_mse = masked_mse_loss(area_out, area_target, mask_gt)
@@ -120,6 +121,7 @@ class Trainer(object):
             beta = 5.0 # weight for area loss
 
             total_loss = area_loss_with_mse * beta + loss * alpha
+            total_loss_epoch += total_loss.item()
             total_loss.backward()
             self.optimizer.step()
             train_loss += loss.item()
@@ -137,7 +139,7 @@ class Trainer(object):
                 global_step = i + num_img_tr * epoch
                 #self.summary.visualize_image(self.writer, self.args.dataset, image, target, seg_out, global_step)
 
-        self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
+        self.writer.add_scalar('train/total_loss_epoch', total_loss_epoch / len(self.train_loader), epoch)
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
         print('Loss: %.3f' % (train_loss/len(self.train_loader)))
         print("Area Loss: ", (area_loss/len(self.train_loader)))
@@ -173,25 +175,26 @@ class Trainer(object):
                 area_out = area_out.to(area_target.device)
                 output = output.to(target.device)
             loss = self.criterion(output, target)
-            with torch.no_grad():
-                area_gt = ((target == 1) | (target == 2)).float().unsqueeze(1)
-            area_loss = masked_mse_loss(area_out, area_target, area_gt)
             test_loss += loss.item()
-            test_area_loss += area_loss.item()
 
             seg_prob = F.softmax(output, dim=1)
-            mask_pred = seg_prob[:,1:2,:,:] + seg_prob[:,2:3,:,:]
-            final_area_pred = mask_pred * area_out
-            total_loss = test_loss + test_area_loss
+            mask_prob = seg_prob[:,1:2,:,:] + seg_prob[:,2:3,:,:]
+            area_loss = masked_mse_loss(area_out, area_target, mask_prob)
+            test_area_loss += area_loss.item()
 
-            tbar.set_postfix(total_loss=float(total_loss / (i + 1)))
+            final_area_pred = mask_prob * area_out
+            avg_total_loss = (test_loss + test_area_loss) / (i + 1)
+            tbar.set_postfix(total_loss=float(avg_total_loss))
+
             pred = output.data.cpu().numpy()
             target = target.cpu().numpy()
             pred = np.argmax(pred, axis=1)
+            final_area_pred_np = final_area_pred.cpu().numpy()
+            area_target_np = area_target.cpu().numpy()
             # Add batch sample into evaluator
             self.evaluator.add_batch(target, pred)
             self.evaluator.add_area_batch(final_area_pred, area_target)
-            #self.evaluator.area_rer_batch(final_area_pred, area_target, target)
+            self.evaluator.area_rer_batch(final_area_pred_np, area_target_np, target, pred, mode='pred')
 
         # Fast test during the training
         Acc = self.evaluator.Pixel_Accuracy()
@@ -208,9 +211,16 @@ class Trainer(object):
 
         with torch.inference_mode():
             area_acc = self.evaluator.area_accuracy()
-        self.writer.add_scalar('val/total_loss_epoch', test_loss + test_area_loss, epoch)
-        self.writer.add_scalar('val/seg_loss_epoch', test_loss, epoch)
-        self.writer.add_scalar('val/area_loss_epoch', test_area_loss, epoch)
+
+        num_batches = len(self.val_loader)
+
+        avg_test_loss = test_loss / num_batches
+        avg_area_loss = test_area_loss / num_batches
+        avg_total_loss = avg_test_loss + avg_area_loss
+
+        self.writer.add_scalar('val/total_loss_epoch', avg_total_loss, epoch)
+        self.writer.add_scalar('val/seg_loss_epoch', avg_test_loss, epoch)
+        self.writer.add_scalar('val/area_loss_epoch', avg_area_loss, epoch)
         self.writer.add_scalar('val/mIoU', mIoU, epoch)
         self.writer.add_scalar('val/Acc', Acc, epoch)
         self.writer.add_scalar('val/Acc_class', Acc_class, epoch)
@@ -225,8 +235,8 @@ class Trainer(object):
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
         print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
         print("Area Accuracy: ", area_acc)
-        print('Loss: %.3f' % test_loss)
-        print('Area Loss: %.3f' % test_area_loss)
+        print('Loss: %.3f' % avg_test_loss)
+        print('Area Loss: %.3f' % avg_area_loss)
         print(rer_stats)
 
         new_pred = rer_score

@@ -19,7 +19,7 @@ transform = transforms.Compose([
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 image = transform(image).unsqueeze(0)  # Adiciona dimensão de batch
-checkpoint_path = os.path.join('always_saver\\checkpoint_epoch_56.pth.tar')
+checkpoint_path = os.path.join('always_saver\\checkpoint_epoch_80.pth.tar')
 
 model = DeepLab(num_classes=3,
                         backbone='xception',
