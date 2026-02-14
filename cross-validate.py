@@ -65,21 +65,93 @@ class CrossValidator:
 
     
     def training_loop(self):
-        beat_val_loss = float('inf')
+        best_test_seg_loss = float('inf')
+        best_test_area_loss = float('inf')
+
         device = 'cuda' if self.args.cuda else 'cpu'
         model = self.model
         seg_loss_fn = self.seg_loss
+        area_loss = self.area_loss
+
+        optimizer = self.optimizer
+
+        train_seg_loss = 0.0
+        train_area_loss = 0.0
+
+        train_loader = self.train_loader
+        test_loader = self.test_loader
+
         for epoch in range(self.args.epochs):
             model.train()
 
-            for images, masks,area in self.train_loader:
+            for images, masks,area in train_loader:
                 images = images.to(device)
                 masks = masks.to(device)
                 area = area.to(device)
 
-                seg_pred = model(images)
+                optimizer.zero_grad()
+
+                seg_pred, _, area_pred = model(images)
+
+                mask = ((seg_pred == 1) | (seg_pred == 2)).float().unsqueeze(1)  
+
                 seg_loss = seg_loss_fn(seg_pred, masks)
-                val_loss += seg_loss.item()
+                area_loss = area_loss(area_pred, area, mask)
+
+                alpha = 1.0 # weight for segmentation loss
+                beta = 5.0 # weight for area loss
+
+                total_loss = area_loss * beta + seg_loss * alpha
+                total_loss_epoch += total_loss.item()
+                total_loss.backward()
+
+                optimizer.step()
+
+                train_seg_loss += seg_loss.item()
+                train_area_loss += area_loss.item()
+            
+            train_seg_loss /= len(self.train_loader)
+            train_area_loss /= len(self.train_loader)
+            
+            model.eval()
+
+            test_seg_loss = 0.0
+            test_area_loss = 0.0
+
+            with torch.no_grad():
+                for images, masks, area in test_loader:
+                    images = images.to(device)
+                    masks = masks.to(device)
+                    area = area.to(device)
+                    
+                    seg_pred, _, area_pred  = model(device)
+
+                    mask = ((seg_pred == 1) | (seg_pred == 2)).float().unsqueeze(1) 
+
+                    seg_loss = seg_loss_fn(seg_pred, masks)
+                    area_loss = area_loss(area_pred, area, mask)
+
+                    test_seg_loss += seg_loss.item()
+                    test_area_loss += area_loss.item()
+
+            
+            test_seg_loss /= len(self.test_loader)
+            test_area_loss /= len(self.test_loader)
+
+            print('Epoch: ', epoch)
+            print('Train Segmentation loss: ', train_seg_loss)
+            print('Test Segmentation loss: ', test_seg_loss)
+            print('Train Area loss: ', train_area_loss)
+            print('Test Area loss: ', test_area_loss)
+
+            if  test_seg_loss < best_test_seg_loss and test_area_loss < best_test_area_loss:
+                best_test_area_loss = test_area_loss
+                best_test_seg_loss = test_seg_loss
+
+
+                torch.save(model.state_dict(), f"best_model_fold_{fold}.pth")
+                print("✅ Melhor modelo salvo!")
+
             
 
         
