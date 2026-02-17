@@ -1,0 +1,1 @@
+python cross-validate.py --backbone xception --lr 0.01 --workers 2 --epochs 50 --batch-size 2 --gpu-ids 0 --checkname deeplab-xception --eval-interval 1 --dataset leaf-cross-validation --crop-size 512 --base-size 512  

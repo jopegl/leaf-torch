@@ -5,11 +5,9 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import numpy as np
 import torch.nn.functional as F
-from dotenv import load_dotenv
 import csv
 
-load_dotenv()
-leaf_dataset_path = os.getenv('LEAF_DATASET_PATH', 'complete_leaf_dataset')
+leaf_dataset_path = os.path.join('real_dataset', 'LSID-Beans')
 
 class LeafSegmentation(Dataset):
     NUM_CLASSES = 3 
@@ -22,6 +20,8 @@ class LeafSegmentation(Dataset):
         self.mask_paths = []
         self.area_paths = []
 
+        self.crop_size = getattr(args, 'crop_size', 512)
+
         base_dir = os.path.join(leaf_dataset_path)
         
         if cross_val_folder is not None:
@@ -30,15 +30,19 @@ class LeafSegmentation(Dataset):
             leaf_ids = leaf_ids_train if split == 'train' else leaf_ids_test
 
             for num in leaf_ids:
-                images_dir = os.path.join(base_dir, 'LSID-Beans', num, 'images')
-                area_dir = os.path.join(base_dir, 'LSID-Beans', num, 'area')
-                segmentation_dir = os.path.join(base_dir, 'LSID-Beans', num, 'segmentation')
+
+                num = str(int(num)).zfill(3)
+
+                images_dir = os.path.join(base_dir, num, 'images')
+                area_dir = os.path.join(base_dir, num, 'area')
+                segmentation_dir = os.path.join(base_dir, num, 'segmentation')
 
                 if not (
                     os.path.isdir(images_dir) and
                     os.path.isdir(area_dir) and
                     os.path.isdir(segmentation_dir)
                 ):
+                    print(f"[WARN] Folder not found for leaf_id {num}")
                     continue
 
                 images = sorted(os.listdir(images_dir))
@@ -84,12 +88,12 @@ class LeafSegmentation(Dataset):
 
         image = Image.open(img_path).convert('RGB')
         mask_data = np.fromfile(mask_path, dtype=np.int8)
-        mask_data = mask_data.reshape((512, 512))
+        mask_data = mask_data.reshape((self.crop_size, self.crop_size))
         mask = torch.from_numpy(mask_data)
 
         image = self.image_transform(image)
         area_data = np.fromfile(area_path, dtype=np.float32) 
-        area_data = area_data.reshape((512, 512))  
+        area_data = area_data.reshape((self.crop_size, self.crop_size))  
         area = torch.from_numpy(area_data)
         area = area.unsqueeze(0)
 

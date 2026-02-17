@@ -15,7 +15,9 @@ import argparse
 class CrossValidator:
     def __init__(self, args):
         self.args = args
-        self.train_loader, self.test_loader, self.num_class = make_data_loader(self.args)
+        print(f"[DEBUG] Dataset argument: '{args.dataset}'")
+        kwargs = {'num_workers': 0, 'pin_memory': True} 
+        self.train_loader, self.test_loader, self.num_class = make_data_loader(self.args, **kwargs)
         model = DeepLab(
             num_classes=self.num_class,
                         backbone=args.backbone,
@@ -28,9 +30,19 @@ class CrossValidator:
 
         train_params = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
                         {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
+        
+        if args.use_balanced_weights:
+            classes_weights_path = os.path.join(Path.db_root_dir(args.dataset), args.dataset+'_classes_weights.npy')
+            if os.path.isfile(classes_weights_path):
+                weight = np.load(classes_weights_path)
+            else:
+                weight = calculate_weigths_labels(args.dataset, self.train_loader, self.num_class)
+            weight = torch.from_numpy(weight.astype(np.float32))
+        else:
+            weight = None
 
         self.optimizer = torch.optim.SGD(train_params, momentum=args.momentum, weight_decay=args.weight_decay, nesterov=args.nesterov)
-        self.seg_loss = SegmentationLosses().build_loss(args.loss_type)
+        self.seg_loss = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(args.loss_type)
         self.area_loss = masked_mse_loss
 
         self.evaluator = Evaluator(self.num_class)
@@ -65,7 +77,7 @@ class CrossValidator:
         if args.ft:
             args.start_epoch = 0
 
-        self.writer = SummaryWriter(log_dir=f'runs/{args.checkname}')
+        self.writer = SummaryWriter(log_dir=f'runs_cross_validation/{args.checkname}')
 
     
     def training_loop(self):
@@ -86,11 +98,14 @@ class CrossValidator:
         test_loader = self.test_loader
 
         for epoch in range(self.args.start_epoch,self.args.epochs):
+            print(f"\033[94m=== Epoch {epoch+1}/{self.args.epochs} ===\033[0m")
             train_seg_loss = 0.0
             train_area_loss = 0.0
             model.train()
 
             for i,(images, masks,area) in enumerate(train_loader):
+                if i % 100 == 0:  
+                    print(f"Batch {i}: images {images.shape}, masks {masks.shape}, area {area.shape}")
                 images = images.to(device)
                 masks = masks.to(device)
                 area = area.to(device)
@@ -119,10 +134,10 @@ class CrossValidator:
                 train_area_loss += area_loss_value.item()
 
                 global_step = epoch * len(train_loader) + i
-
-                self.writer.add_scalar("train/seg_loss_iter", seg_loss.item(), global_step)
-                self.writer.add_scalar("train/area_loss_iter", area_loss_value.item(), global_step)
-                self.writer.add_scalar("train/total_loss_iter", total_loss.item(), global_step)
+                if i % 100 == 0:  
+                    self.writer.add_scalar("train/seg_loss_iter", seg_loss.item(), global_step)
+                    self.writer.add_scalar("train/area_loss_iter", area_loss_value.item(), global_step)
+                    self.writer.add_scalar("train/total_loss_iter", total_loss.item(), global_step)
 
                 # log learning rate
                 current_lr = optimizer.param_groups[0]['lr']
@@ -174,6 +189,7 @@ class CrossValidator:
             
             test_seg_loss /= len(self.test_loader)
             test_area_loss /= len(self.test_loader)
+            
             self.writer.add_scalar("epoch/train_seg_loss", train_seg_loss, epoch)
             self.writer.add_scalar("epoch/train_area_loss", train_area_loss, epoch)
             self.writer.add_scalar("epoch/test_seg_loss", test_seg_loss, epoch)
@@ -185,11 +201,7 @@ class CrossValidator:
             self.writer.add_scalar("epoch/total_test_loss",
                                 test_seg_loss * alpha + test_area_loss * beta, epoch)
 
-            print('Epoch: ', epoch)
-            print('Train Segmentation loss: ', train_seg_loss)
-            print('Test Segmentation loss: ', test_seg_loss)
-            print('Train Area loss: ', train_area_loss)
-            print('Test Area loss: ', test_area_loss)
+     
             Acc = self.evaluator.Pixel_Accuracy()
             mIoU = self.evaluator.Mean_Intersection_over_Union()
             FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
@@ -201,6 +213,13 @@ class CrossValidator:
                 rer_stats['marker_mean'] +
                 rer_stats['marker_std']
             )
+
+            print(f"\033[96m[Epoch Summary]\033[0m "
+                  f"Train Seg Loss: \033[91m{train_seg_loss:.4f}\033[0m, "
+                  f"Train Area Loss: \033[92m{train_area_loss:.4f}\033[0m, "
+                  f"Test Seg Loss: \033[91m{test_seg_loss:.4f}\033[0m, "
+                  f"Test Area Loss: \033[92m{test_area_loss:.4f}\033[0m, "
+                  f"mIoU: \033[93m{mIoU:.4f}\033[0m, Acc: \033[93m{Acc:.4f}\033[0m")
 
             # TensorBoard
             self.writer.add_scalar("val/Acc", Acc, epoch)
@@ -215,25 +234,25 @@ class CrossValidator:
 
             total_test_loss = test_seg_loss * alpha + test_area_loss * beta
 
+            checkpoint = {
+                    'epoch': epoch+1,
+                    'state_dict': model.module.state_dict() if self.args.cuda else model.state_dict(),
+                    'optimizer': self.optimizer.state_dict(),
+                    'best_pred': best_total_loss
+                }
+            os.makedirs("all_1st_crossv", exist_ok=True)           
+            torch.save(checkpoint, f"all_1st_crossv/checkpoint_epoch_{epoch}.pth.tar")
+
+               
             if total_test_loss < best_total_loss:
                 best_total_loss = total_test_loss
+                torch.save(checkpoint, "1st_best_model_crossv.pth.tar")
+                print("\033[92mBest model updated!\033[0m")  
 
-                if self.args.cuda:
-                    torch.save(model.module.state_dict(), f"best_model_epoch_{epoch}.pth")
-                else:
-                    torch.save(model.state_dict(), f"best_model_epoch_{epoch}.pth")
-
-                print("✅ Melhor modelo salvo!")
+            print("best model saved")
 
         self.writer.close()
-
-
         
-
-
-
-        
-
 
 def main():
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
@@ -243,7 +262,7 @@ def main():
     parser.add_argument('--out-stride', type=int, default=16,
                         help='network output stride (default: 8)')
     parser.add_argument('--dataset', type=str, default='pascal',
-                        choices=['pascal', 'coco', 'cityscapes', 'leaf'],
+                        choices=['pascal', 'coco', 'cityscapes', 'leaf', 'leaf-cross-validation'],
                         help='dataset name (default: pascal)')
     parser.add_argument('--use-sbd', action='store_true', default=True,
                         help='whether to use SBD dataset (default: True)')
@@ -347,5 +366,10 @@ def main():
 
     if args.checkname is None:
         args.checkname = 'deeplab-'+str(args.backbone)
+
+    cross_validation = CrossValidator(args)
+    cross_validation.training_loop()
+
+main()
 
     

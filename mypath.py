@@ -11,6 +11,8 @@ class Path(object):
             return '/path/to/datasets/coco/'
         elif dataset == 'leaf':
             return 'leaf'
+        elif dataset == 'leaf-cross-validation':
+            return 'real_dataset'
         else:
             print('Dataset {} not available.'.format(dataset))
             raise NotImplementedError
