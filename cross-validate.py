@@ -7,7 +7,7 @@ from modeling.deeplab import *
 from utils.loss import SegmentationLosses
 from utils.calculate_weights import calculate_weigths_labels
 from utils.lr_scheduler import LR_Scheduler
-from utils.summaries import TensorboardSummary
+from torch.utils.tensorboard import SummaryWriter
 from utils.metrics import Evaluator
 from area_loss_fn import masked_mse_loss
 import argparse
@@ -24,6 +24,8 @@ class CrossValidator:
                         freeze_bn=True
         )
 
+        self.model = model
+
         train_params = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
                         {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
 
@@ -31,7 +33,7 @@ class CrossValidator:
         self.seg_loss = SegmentationLosses().build_loss(args.loss_type)
         self.area_loss = masked_mse_loss
 
-        self.evaluator = Evaluator(self.nclass)
+        self.evaluator = Evaluator(self.num_class)
 
         self.lr_scheduler = LR_Scheduler(args.lr_scheduler, args.lr,
                                             args.epochs, len(self.train_loader))
@@ -63,96 +65,168 @@ class CrossValidator:
         if args.ft:
             args.start_epoch = 0
 
+        self.writer = SummaryWriter(log_dir=f'runs/{args.checkname}')
+
     
     def training_loop(self):
-        best_test_seg_loss = float('inf')
-        best_test_area_loss = float('inf')
+        best_total_loss = float('inf')
 
         device = 'cuda' if self.args.cuda else 'cpu'
         model = self.model
         seg_loss_fn = self.seg_loss
-        area_loss = self.area_loss
+        area_loss_fn = self.area_loss
 
         optimizer = self.optimizer
 
-        train_seg_loss = 0.0
-        train_area_loss = 0.0
+        alpha = 1.0 # weight for segmentation loss
+        beta = 5.0 # weight for area loss
+
 
         train_loader = self.train_loader
         test_loader = self.test_loader
 
-        for epoch in range(self.args.epochs):
+        for epoch in range(self.args.start_epoch,self.args.epochs):
+            train_seg_loss = 0.0
+            train_area_loss = 0.0
             model.train()
 
-            for images, masks,area in train_loader:
+            for i,(images, masks,area) in enumerate(train_loader):
                 images = images.to(device)
                 masks = masks.to(device)
                 area = area.to(device)
+
+                self.lr_scheduler(self.optimizer, i, epoch, self.best_pred)
 
                 optimizer.zero_grad()
 
                 seg_pred, _, area_pred = model(images)
 
-                mask = ((seg_pred == 1) | (seg_pred == 2)).float().unsqueeze(1)  
+                seg_prob = torch.softmax(seg_pred, dim=1)
+                mask_prob = seg_prob[:, 1:2, :, :] + seg_prob[:, 2:3, :, :]
+
 
                 seg_loss = seg_loss_fn(seg_pred, masks)
-                area_loss = area_loss(area_pred, area, mask)
+                area_loss_value = area_loss_fn(area_pred, area, mask_prob)
 
-                alpha = 1.0 # weight for segmentation loss
-                beta = 5.0 # weight for area loss
+                
 
-                total_loss = area_loss * beta + seg_loss * alpha
-                total_loss_epoch += total_loss.item()
+                total_loss = area_loss_value * beta + seg_loss * alpha
                 total_loss.backward()
 
                 optimizer.step()
 
                 train_seg_loss += seg_loss.item()
-                train_area_loss += area_loss.item()
+                train_area_loss += area_loss_value.item()
+
+                global_step = epoch * len(train_loader) + i
+
+                self.writer.add_scalar("train/seg_loss_iter", seg_loss.item(), global_step)
+                self.writer.add_scalar("train/area_loss_iter", area_loss_value.item(), global_step)
+                self.writer.add_scalar("train/total_loss_iter", total_loss.item(), global_step)
+
+                # log learning rate
+                current_lr = optimizer.param_groups[0]['lr']
+                self.writer.add_scalar("train/lr", current_lr, global_step)
             
             train_seg_loss /= len(self.train_loader)
             train_area_loss /= len(self.train_loader)
-            
+                
             model.eval()
 
             test_seg_loss = 0.0
             test_area_loss = 0.0
 
+            self.evaluator.reset()
+            
             with torch.no_grad():
                 for images, masks, area in test_loader:
                     images = images.to(device)
                     masks = masks.to(device)
                     area = area.to(device)
                     
-                    seg_pred, _, area_pred  = model(device)
+                    seg_pred, _, area_pred  = model(images)
 
-                    mask = ((seg_pred == 1) | (seg_pred == 2)).float().unsqueeze(1) 
+                    seg_prob = torch.softmax(seg_pred, dim=1)
+                    mask_prob = seg_prob[:, 1:2, :, :] + seg_prob[:, 2:3, :, :]
 
                     seg_loss = seg_loss_fn(seg_pred, masks)
-                    area_loss = area_loss(area_pred, area, mask)
+                    area_loss_value = area_loss_fn(area_pred, area, mask_prob)
 
                     test_seg_loss += seg_loss.item()
-                    test_area_loss += area_loss.item()
+                    test_area_loss += area_loss_value.item()
+
+                    seg_pred_cpu = seg_pred.detach().cpu().numpy()
+                    masks_cpu = masks.detach().cpu().numpy()
+
+                    pred = np.argmax(seg_pred_cpu, axis=1)
+
+                    final_area_pred = mask_prob * area_pred
+                    final_area_pred_np = final_area_pred.detach().cpu().numpy()
+                    area_target_np = area.detach().cpu().numpy()
+
+                    self.evaluator.add_batch(masks_cpu, pred)
+                    self.evaluator.add_area_batch(final_area_pred, area)
+                    self.evaluator.area_rer_batch(final_area_pred_np, area_target_np, masks_cpu, pred, mode='pred')     
+        
+                    
+
 
             
             test_seg_loss /= len(self.test_loader)
             test_area_loss /= len(self.test_loader)
+            self.writer.add_scalar("epoch/train_seg_loss", train_seg_loss, epoch)
+            self.writer.add_scalar("epoch/train_area_loss", train_area_loss, epoch)
+            self.writer.add_scalar("epoch/test_seg_loss", test_seg_loss, epoch)
+            self.writer.add_scalar("epoch/test_area_loss", test_area_loss, epoch)
+
+            self.writer.add_scalar("epoch/total_train_loss",
+                       train_seg_loss + train_area_loss, epoch)
+
+            self.writer.add_scalar("epoch/total_test_loss",
+                                test_seg_loss * alpha + test_area_loss * beta, epoch)
 
             print('Epoch: ', epoch)
             print('Train Segmentation loss: ', train_seg_loss)
             print('Test Segmentation loss: ', test_seg_loss)
             print('Train Area loss: ', train_area_loss)
             print('Test Area loss: ', test_area_loss)
+            Acc = self.evaluator.Pixel_Accuracy()
+            mIoU = self.evaluator.Mean_Intersection_over_Union()
+            FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
+            rer_stats = self.evaluator.area_rer_stats()
 
-            if  test_seg_loss < best_test_seg_loss and test_area_loss < best_test_area_loss:
-                best_test_area_loss = test_area_loss
-                best_test_seg_loss = test_seg_loss
+            rer_score = (
+                rer_stats['leaf_mean'] +
+                rer_stats['leaf_std'] +
+                rer_stats['marker_mean'] +
+                rer_stats['marker_std']
+            )
+
+            # TensorBoard
+            self.writer.add_scalar("val/Acc", Acc, epoch)
+            self.writer.add_scalar("val/mIoU", mIoU, epoch)
+            self.writer.add_scalar("val/fwIoU", FWIoU, epoch)
+            self.writer.add_scalar("val/RER_score", rer_score, epoch)
+
+            print("Val mIoU:", mIoU)
+            print("Val Acc:", Acc)
 
 
-                torch.save(model.state_dict(), f"best_model_fold_{fold}.pth")
+
+            total_test_loss = test_seg_loss * alpha + test_area_loss * beta
+
+            if total_test_loss < best_total_loss:
+                best_total_loss = total_test_loss
+
+                if self.args.cuda:
+                    torch.save(model.module.state_dict(), f"best_model_epoch_{epoch}.pth")
+                else:
+                    torch.save(model.state_dict(), f"best_model_epoch_{epoch}.pth")
+
                 print("✅ Melhor modelo salvo!")
 
-            
+        self.writer.close()
+
 
         
 
