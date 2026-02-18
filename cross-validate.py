@@ -11,13 +11,13 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.metrics import Evaluator
 from area_loss_fn import masked_mse_loss
 import argparse
+import time
 
 class CrossValidator:
     def __init__(self, args):
         self.args = args
         print(f"[DEBUG] Dataset argument: '{args.dataset}'")
-        kwargs = {'num_workers': 0, 'pin_memory': True} 
-        self.train_loader, self.test_loader, self.num_class = make_data_loader(self.args, **kwargs)
+        self.train_loader, self.test_loader, self.num_class = make_data_loader(self.args)
         model = DeepLab(
             num_classes=self.num_class,
                         backbone=args.backbone,
@@ -98,6 +98,7 @@ class CrossValidator:
         test_loader = self.test_loader
 
         for epoch in range(self.args.start_epoch,self.args.epochs):
+            start_time = time.time()
             print(f"\033[94m=== Epoch {epoch+1}/{self.args.epochs} ===\033[0m")
             train_seg_loss = 0.0
             train_area_loss = 0.0
@@ -215,11 +216,14 @@ class CrossValidator:
             )
 
             print(f"\033[96m[Epoch Summary]\033[0m "
-                  f"Train Seg Loss: \033[91m{train_seg_loss:.4f}\033[0m, "
-                  f"Train Area Loss: \033[92m{train_area_loss:.4f}\033[0m, "
-                  f"Test Seg Loss: \033[91m{test_seg_loss:.4f}\033[0m, "
-                  f"Test Area Loss: \033[92m{test_area_loss:.4f}\033[0m, "
-                  f"mIoU: \033[93m{mIoU:.4f}\033[0m, Acc: \033[93m{Acc:.4f}\033[0m")
+                    f"Train Seg Loss: \033[91m{train_seg_loss:.4f}\033[0m, "
+                    f"Train Area Loss: \033[92m{train_area_loss:.4f}\033[0m, "
+                    f"Test Seg Loss: \033[91m{test_seg_loss:.4f}\033[0m, "
+                    f"Test Area Loss: \033[92m{test_area_loss:.4f}\033[0m, "
+                    f"mIoU: \033[93m{mIoU:.4f}\033[0m, "
+                    f"Acc: \033[93m{Acc:.4f}\033[0m, "
+                    f"RER Leaf: \033[94m{rer_stats['leaf_mean']:.4f} ± {rer_stats['leaf_std']:.4f}\033[0m, "
+                    f"RER Marker: \033[95m{rer_stats['marker_mean']:.4f} ± {rer_stats['marker_std']:.4f}\033[0m")
 
             # TensorBoard
             self.writer.add_scalar("val/Acc", Acc, epoch)
@@ -250,6 +254,9 @@ class CrossValidator:
                 print("\033[92mBest model updated!\033[0m")  
 
             print("best model saved")
+            end_time = time.time()
+            print('Epoch duration: ', end_time - start_time)
+
 
         self.writer.close()
         
