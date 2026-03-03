@@ -244,13 +244,13 @@ class CrossValidator:
                     'optimizer': self.optimizer.state_dict(),
                     'best_pred': best_total_loss
                 }
-            os.makedirs("all_1st_crossv", exist_ok=True)           
-            torch.save(checkpoint, f"all_1st_crossv/checkpoint_epoch_{epoch}.pth.tar")
+            os.makedirs("all_2nd_crossv", exist_ok=True)           
+            torch.save(checkpoint, f"all_2nd_crossv/checkpoint_epoch_{epoch}.pth.tar")
 
                
             if total_test_loss < best_total_loss:
                 best_total_loss = total_test_loss
-                torch.save(checkpoint, "1st_best_model_crossv.pth.tar")
+                torch.save(checkpoint, "2nd_best_model_crossv.pth.tar")
                 print("\033[92mBest model updated!\033[0m")  
 
             print("best model saved")

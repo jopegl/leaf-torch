@@ -13,7 +13,7 @@ def make_data_loader(args, **kwargs):
         test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         return train_loader, val_loader, test_loader, num_class
     elif args.dataset == 'leaf-cross-validation':
-        split = 1
+        split = 2
         train_set = leaf.LeafSegmentation(args, split = 'train', cross_val_folder=f'real_dataset\\cross-validation\\cv_1\\split_{split}')
         test_set = leaf.LeafSegmentation(args, split = 'test', cross_val_folder=f'real_dataset\\cross-validation\\cv_1\\split_{split}')
         num_class = train_set.NUM_CLASSES
