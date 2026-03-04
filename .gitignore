@@ -127,3 +127,8 @@ cross-validation
 Leaf on Stem Image Dataset Beans (LSID-Beans)
 dataset
 real_dataset
+
+Folds
+multileaf_dataset
+annotations
+resized_dataset
