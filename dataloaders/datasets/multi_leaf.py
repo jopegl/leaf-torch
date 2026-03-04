@@ -2,47 +2,50 @@ import os
 from PIL import Image
 import torch
 from torch.utils.data import Dataset
-import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
 import numpy as np
-import torch.nn.functional as F
-import csv
-import pandas as pd
-import cv2
 import glob
+import pandas as pd
+import re
 
 class MultiLeafDataset(Dataset):
-    def __init__(self, args, split, fold, img_dir, seg_dir):
+    NUM_CLASSES = 3
+    def __init__(self, args, split, fold):
         self.args = args
         self.split = split
+        self.img_dir = 'resized_dataset/dataset_processado/resized_fixed_512'
+        self.seg_dir = 'resized_dataset/mascaras_processadas/resized_fixed_512'
         self.image_paths = []
         self.segmentation_paths = []
-        self.img_dir = img_dir
-        self.seg_dir = seg_dir
-
-        fold_csv_path = f'{args.folds_path}/Folds_Divisao_v20260303_162811_max4.csv.csv'
+ 
+        # Carrega CSV de folds
+        fold_csv_path = os.path.join(args.folds_path, 'Folds_Divisao_v20260303_162811_max4.csv.csv')
         df = pd.read_csv(fold_csv_path)
         self.group_to_images = {}
 
-        for _,row in df.iterrows():
-            group_name = row["Group Image"]
+        # Monta dicionário group -> instâncias
+        for _, row in df.iterrows():
+            group_name = row["Group Name"]
             instances = row["Instances"]
             images = [x.strip() for x in instances.split(",")]
             self.group_to_images[group_name] = images
 
+        # Define grupos de treino ou teste
         if 'Fold' in df.columns:
             if split == 'train':
-                groups = df[df["Fold"] != fold]["Group Image"].tolist()
+                groups = df[df["Fold"] != fold]["Group Name"].tolist()
             else:
-                groups = df[df["Fold"] == fold]["Group Image"].tolist()
+                groups = df[df["Fold"] == fold]["Group Name"].tolist()
         else:
-            groups = df["Group Image"].tolist()
+            groups = df["Group Name"].tolist()
 
         for group in groups:
             for instance_id in self.group_to_images[group]:
-                pattern = os.path.join(self.img_dir, f"*{instance_id}*.jpg")
-                found_images = glob.glob(pattern)
+                pattern = re.compile(rf"{re.escape(instance_id)}(_|\.|$)", re.IGNORECASE)
+                all_images = glob.glob(os.path.join(self.img_dir, "*.jpg"))
 
+                found_images = [img for img in all_images if pattern.search(os.path.basename(img))]
+                
                 if not found_images:
                     print(f"[WARN] Nenhuma imagem encontrada para: {instance_id}")
                     continue
@@ -60,22 +63,19 @@ class MultiLeafDataset(Dataset):
 
         print(f"[INFO] {split} - {len(self.image_paths)} imagens carregadas para fold {fold}")
 
-
     def __len__(self):
         return len(self.image_paths)
-    
-    def __getitem__(self, key):
-        img_path = self.image_paths[key]
-        seg_path = self.segmentation_paths[key]
+
+    def __getitem__(self, idx):
+        img_path = self.image_paths[idx]
+        seg_path = self.segmentation_paths[idx]
 
         image = Image.open(img_path).convert('RGB')
-        image = TF.resize(image, (512, 512)) 
-        image = TF.to_tensor(image)   
+        image = TF.resize(image, (512, 512))
+        image = TF.to_tensor(image)
 
         segmentation = Image.open(seg_path).convert('L')
-        segmentation = TF.resize(segmentation, (512, 512), interpolation=Image.NEAREST) 
-        segmentation = torch.as_tensor(np.array(segmentation), dtype=torch.long)  
+        segmentation = TF.resize(segmentation, (512, 512), interpolation=Image.NEAREST)
+        segmentation = torch.as_tensor(np.array(segmentation), dtype=torch.long)
 
         return image, segmentation
-
-

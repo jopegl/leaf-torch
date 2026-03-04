@@ -1,4 +1,4 @@
-from dataloaders.datasets import leaf
+from dataloaders.datasets import leaf, multi_leaf
 from torch.utils.data import DataLoader
 
 def make_data_loader(args, **kwargs):
@@ -16,6 +16,15 @@ def make_data_loader(args, **kwargs):
         split = 2
         train_set = leaf.LeafSegmentation(args, split = 'train', cross_val_folder=f'real_dataset\\cross-validation\\cv_1\\split_{split}')
         test_set = leaf.LeafSegmentation(args, split = 'test', cross_val_folder=f'real_dataset\\cross-validation\\cv_1\\split_{split}')
+        num_class = train_set.NUM_CLASSES
+        train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
+        test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
+        return train_loader, test_loader, num_class
+    
+    elif args.dataset == 'multi_leaf_dataset':
+        fold = 1
+        train_set = multi_leaf.MultiLeafDataset(args, 'train', fold)
+        test_set = multi_leaf.MultiLeafDataset(args, 'train', fold)
         num_class = train_set.NUM_CLASSES
         train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
         test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
