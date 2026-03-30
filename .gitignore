@@ -132,3 +132,7 @@ Folds
 multileaf_dataset
 annotations
 resized_dataset
+images
+results
+results_segunda_rodada
+training_metrics_fold_1.csv

@@ -13,6 +13,8 @@ class Path(object):
             return 'leaf'
         elif dataset == 'leaf-cross-validation':
             return 'real_dataset'
+        elif dataset == 'multi_leaf':
+            return 'resized_dataset'
         else:
             print('Dataset {} not available.'.format(dataset))
             raise NotImplementedError

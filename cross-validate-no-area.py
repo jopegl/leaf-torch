@@ -1,204 +1,324 @@
 import os
+import csv
 import numpy as np
-from mypath import Path
-from dataloaders import make_data_loader
-from torch.utils.tensorboard import SummaryWriter
-import argparse
-import time
 import torch
-import torchvision
+
+from mypath import Path
+from dataloaders.datasets import multi_leaf
+from torch.utils.data import DataLoader
 
 from utils.loss import SegmentationLosses
 from utils.calculate_weights import calculate_weigths_labels
-from utils.lr_scheduler import LR_Scheduler
 from utils.metrics import Evaluator
 
+from modeling.deeplab_seg import DeepLab
+
+
+# ===== Colored logs =====
+class C:
+    HEADER = "\033[95m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
+
+
 class CrossValidator:
+
     def __init__(self, args):
+
         self.args = args
-        print(f"[DEBUG] Dataset argument: '{args.dataset}'")
 
-        # Carrega dataloaders
-        self.train_loader, self.test_loader, self.num_class = make_data_loader(self.args)
+        print(f"{C.CYAN}[DEBUG] Dataset: {args.dataset}{C.END}")
 
-        # Modelo DeepLabV3 com MobileNet backbone
-        self.model = torchvision.models.segmentation.deeplabv3_mobilenet_v3_large(
-            num_classes=self.num_class, aux_loss=False
+        torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
+
+        temp_dataset = multi_leaf.MultiLeafDataset('train', 1)
+        self.num_class = temp_dataset.NUM_CLASSES
+
+        print(
+            f"{C.BOLD}{C.GREEN}✔ Number of classes detected:{C.END} "
+            f"{C.YELLOW}{self.num_class}{C.END}"
         )
 
-        # Configura pesos balanceados
-        if args.use_balanced_weights:
-            classes_weights_path = os.path.join(Path.db_root_dir(args.dataset),
-                                                args.dataset+'_classes_weights.npy')
-            if os.path.isfile(classes_weights_path):
-                weight = np.load(classes_weights_path)
-            else:
-                weight = calculate_weigths_labels(args.dataset, self.train_loader, self.num_class)
-            weight = torch.from_numpy(weight.astype(np.float32))
-        else:
-            weight = None
+        # ===== CSV logging =====
 
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         lr=args.lr,
-                                         momentum=args.momentum,
-                                         weight_decay=args.weight_decay,
-                                         nesterov=args.nesterov)
+        os.makedirs("results", exist_ok=True)
 
-        self.seg_loss = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(args.loss_type)
-        self.evaluator = Evaluator(self.num_class)
-        self.lr_scheduler = LR_Scheduler(args.lr_scheduler, args.lr,
-                                         args.epochs, len(self.train_loader))
+        self.csv_path = "results/training_metrics.csv"
 
-        if args.cuda:
-            self.model = torch.nn.DataParallel(self.model, args.gpu_ids)
-            self.model = self.model.cuda()
+        with open(self.csv_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                "fold",
+                "epoch",
+                "train_loss",
+                "val_loss",
+                "val_miou",
+                "val_accuracy"
+            ])
 
-        # Resume checkpoint
-        self.best_pred = 0.0
-        if args.resume is not None:
-            if not os.path.isfile(args.resume):
-                raise RuntimeError(f"=> no checkpoint found at '{args.resume}'")
-            checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
-            if args.cuda:
-                self.model.module.load_state_dict(checkpoint['state_dict'])
-            else:
-                self.model.load_state_dict(checkpoint['state_dict'])
-            if not args.ft:
-                self.optimizer.load_state_dict(checkpoint['optimizer'])
-            self.best_pred = checkpoint['best_pred']
-            print(f"=> loaded checkpoint '{args.resume}' (epoch {checkpoint['epoch']})")
+        # ===== Loss =====
 
-        # Limpa start_epoch se fine-tuning
-        if args.ft:
-            args.start_epoch = 0
+        self.seg_loss = SegmentationLosses(
+            weight=None,
+            cuda=args.cuda
+        ).build_loss('ce')
 
-        self.writer = SummaryWriter(log_dir=f'runs_cross_validation/{args.checkname}')
+        os.makedirs("crossval_models", exist_ok=True)
 
     def training_loop(self):
-        best_total_loss = float('inf')
+
+        NUM_FOLDS = 5
         device = 'cuda' if self.args.cuda else 'cpu'
-        model = self.model
-        seg_loss_fn = self.seg_loss
-        optimizer = self.optimizer
 
-        train_loader = self.train_loader
-        test_loader = self.test_loader
+        fold_results = []
 
-        for epoch in range(self.args.start_epoch, self.args.epochs):
-            start_time = time.time()
-            print(f"\033[94m=== Epoch {epoch+1}/{self.args.epochs} ===\033[0m")
-            train_seg_loss = 0.0
+        for fold in range(1, NUM_FOLDS + 1):
 
-            model.train()
-            for i, (images, masks) in enumerate(train_loader):
-                if i % 100 == 0:
-                    print(f"Batch {i}: images {images.shape}, masks {masks.shape}")
-                images = images.to(device)
-                masks = masks.to(device)
+            print(f"\n{C.BOLD}{C.HEADER}============================{C.END}")
+            print(f"{C.BOLD}{C.HEADER}STARTING FOLD {fold}{C.END}")
+            print(f"{C.BOLD}{C.HEADER}============================{C.END}")
 
-                self.lr_scheduler(optimizer, i, epoch, self.best_pred)
+            evaluator = Evaluator(self.num_class)
 
-                optimizer.zero_grad()
-                seg_pred = model(images)['out']  # DeepLab retorna dict {'out', 'aux'}
-                seg_loss = seg_loss_fn(seg_pred, masks)
-                seg_loss.backward()
-                optimizer.step()
+            train_set = multi_leaf.MultiLeafDataset('train', fold)
+            val_set   = multi_leaf.MultiLeafDataset('val', fold)
+            test_set  = multi_leaf.MultiLeafDataset('test', fold)
 
-                train_seg_loss += seg_loss.item()
-                global_step = epoch * len(train_loader) + i
-                if i % 100 == 0:
-                    self.writer.add_scalar("train/seg_loss_iter", seg_loss.item(), global_step)
-                    self.writer.add_scalar("train/lr", optimizer.param_groups[0]['lr'], global_step)
+            print(
+                f"{C.CYAN}Dataset sizes → "
+                f"Train: {len(train_set)} | "
+                f"Val: {len(val_set)} | "
+                f"Test: {len(test_set)}{C.END}"
+            )
 
-            train_seg_loss /= len(train_loader)
+            train_loader = DataLoader(
+                train_set,
+                batch_size=self.args.batch_size,
+                shuffle=True,
+                num_workers=self.args.workers
+            )
 
-            # Avaliação
-            model.eval()
-            test_seg_loss = 0.0
-            self.evaluator.reset()
-            with torch.no_grad():
-                for images, masks in test_loader:
+            val_loader = DataLoader(
+                val_set,
+                batch_size=self.args.batch_size,
+                shuffle=False,
+                num_workers=self.args.workers
+            )
+
+            test_loader = DataLoader(
+                test_set,
+                batch_size=self.args.batch_size,
+                shuffle=False,
+                num_workers=self.args.workers
+            )
+
+            model = DeepLab(
+                num_classes=self.num_class,
+                backbone=self.args.backbone,
+                output_stride=self.args.out_stride,
+                sync_bn=self.args.sync_bn,
+                freeze_bn=True
+            )
+
+            if self.args.cuda:
+                model = torch.nn.DataParallel(model, self.args.gpu_ids)
+                model = model.cuda()
+            else:
+                model = model.to(device)
+
+            optimizer = torch.optim.SGD(
+                model.parameters(),
+                lr=self.args.lr,
+                momentum=self.args.momentum,
+                weight_decay=self.args.weight_decay,
+                nesterov=self.args.nesterov
+            )
+
+            best_val_loss = float('inf')
+
+            for epoch in range(self.args.epochs):
+
+                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END}")
+
+                # ===== TRAIN =====
+
+                model.train()
+                train_loss = 0
+
+                for batch_idx, (images, masks) in enumerate(train_loader):
+
+                    if batch_idx % 100 == 0:
+
+                        print(
+                            f"{C.YELLOW}[Batch {batch_idx}] "
+                            f"Images shape: {images.shape} "
+                            f"Masks shape: {masks.shape}{C.END}"
+                        )
+
                     images = images.to(device)
                     masks = masks.to(device)
-                    seg_pred = model(images)['out']
-                    seg_loss = seg_loss_fn(seg_pred, masks)
-                    test_seg_loss += seg_loss.item()
 
-                    seg_pred_cpu = seg_pred.detach().cpu().numpy()
-                    masks_cpu = masks.detach().cpu().numpy()
-                    pred = np.argmax(seg_pred_cpu, axis=1)
-                    self.evaluator.add_batch(masks_cpu, pred)
+                    optimizer.zero_grad()
 
-            test_seg_loss /= len(test_loader)
+                    preds = model(images)
 
-            # Tensorboard
-            self.writer.add_scalar("epoch/train_seg_loss", train_seg_loss, epoch)
-            self.writer.add_scalar("epoch/test_seg_loss", test_seg_loss, epoch)
-            self.writer.add_scalar("epoch/total_loss", train_seg_loss + test_seg_loss, epoch)
+                    loss = self.seg_loss(preds, masks)
 
-            Acc = self.evaluator.Pixel_Accuracy()
-            mIoU = self.evaluator.Mean_Intersection_over_Union()
-            FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
+                    loss.backward()
+                    optimizer.step()
 
-            print(f"\033[96m[Epoch Summary]\033[0m "
-                  f"Train Seg Loss: \033[91m{train_seg_loss:.4f}\033[0m, "
-                  f"Test Seg Loss: \033[92m{test_seg_loss:.4f}\033[0m, "
-                  f"mIoU: \033[93m{mIoU:.4f}\033[0m, "
-                  f"Acc: \033[93m{Acc:.4f}\033[0m")
+                    train_loss += loss.item()
 
-            self.writer.add_scalar("val/Acc", Acc, epoch)
-            self.writer.add_scalar("val/mIoU", mIoU, epoch)
-            self.writer.add_scalar("val/fwIoU", FWIoU, epoch)
+                train_loss /= len(train_loader)
 
-            # Checkpoint
-            total_test_loss = test_seg_loss
-            checkpoint = {
-                'epoch': epoch+1,
-                'state_dict': model.module.state_dict() if self.args.cuda else model.state_dict(),
-                'optimizer': optimizer.state_dict(),
-                'best_pred': best_total_loss
-            }
-            os.makedirs("all_2nd_crossv", exist_ok=True)
-            torch.save(checkpoint, f"all_2nd_crossv/checkpoint_epoch_{epoch}.pth.tar")
+                # ===== VALIDATION =====
 
-            if total_test_loss < best_total_loss:
-                best_total_loss = total_test_loss
-                torch.save(checkpoint, "2nd_best_model_crossv.pth.tar")
-                print("\033[92mBest model updated!\033[0m")
+                model.eval()
+                val_loss = 0
 
-            print("best model saved")
-            end_time = time.time()
-            print('Epoch duration: ', end_time - start_time)
+                evaluator.reset()
 
-        self.writer.close()
+                with torch.no_grad():
+
+                    for images, masks in val_loader:
+
+                        images = images.to(device)
+                        masks = masks.to(device)
+
+                        preds = model(images)
+
+                        loss = self.seg_loss(preds, masks)
+
+                        val_loss += loss.item()
+
+                        preds_np = preds.detach().cpu().numpy()
+                        masks_np = masks.detach().cpu().numpy()
+
+                        pred = np.argmax(preds_np, axis=1)
+
+                        evaluator.add_batch(masks_np, pred)
+
+                val_loss /= len(val_loader)
+
+                val_miou = evaluator.Mean_Intersection_over_Union()
+                val_acc = evaluator.Pixel_Accuracy()
+
+                print(
+                    f"{C.GREEN}Train Loss:{C.END} {train_loss:.4f} | "
+                    f"{C.YELLOW}Val Loss:{C.END} {val_loss:.4f} | "
+                    f"{C.CYAN}Val mIoU:{C.END} {val_miou:.4f} | "
+                    f"{C.BLUE}Val Acc:{C.END} {val_acc:.4f}"
+                )
+
+                # ===== Save metrics =====
+
+                with open(self.csv_path, "a", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([
+                        fold,
+                        epoch + 1,
+                        train_loss,
+                        val_loss,
+                        val_miou,
+                        val_acc
+                    ])
+
+                if val_loss < best_val_loss:
+
+                    best_val_loss = val_loss
+
+                    torch.save(
+                        model.state_dict(),
+                        f"crossval_models/best_model_fold_{fold}.pth"
+                    )
+
+                    print(f"{C.GREEN}✔ Best model updated{C.END}")
+
+            # ===== TEST =====
+
+            print(f"\n{C.CYAN}Testing best model...{C.END}")
+
+            model.load_state_dict(
+                torch.load(
+                    f"crossval_models/best_model_fold_{fold}.pth"
+                )
+            )
+
+            model.eval()
+            evaluator.reset()
+
+            with torch.no_grad():
+
+                for images, masks in test_loader:
+
+                    images = images.to(device)
+                    masks = masks.to(device)
+
+                    preds = model(images)
+
+                    preds = preds.detach().cpu().numpy()
+                    masks = masks.detach().cpu().numpy()
+
+                    pred = np.argmax(preds, axis=1)
+
+                    evaluator.add_batch(masks, pred)
+
+            mIoU = evaluator.Mean_Intersection_over_Union()
+
+            print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
+
+            fold_results.append(mIoU)
+
+        # ===== FINAL RESULTS =====
+
+        print(f"\n{C.BOLD}{C.HEADER}================================={C.END}")
+        print(f"{C.BOLD}{C.HEADER}CROSS VALIDATION RESULTS{C.END}")
+        print(f"{C.BOLD}{C.HEADER}================================={C.END}")
+
+        for i, res in enumerate(fold_results):
+            print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
+
+        print(f"\n{C.BOLD}{C.GREEN}Mean mIoU:{C.END} {np.mean(fold_results):.4f}")
+
+
+class Args:
+
+    dataset = "multi_leaf"
+    backbone = "xception"
+    out_stride = 16
+
+    workers = 0
+
+    epochs = 50
+    batch_size = 2
+
+    lr = 0.01
+    momentum = 0.9
+    weight_decay = 5e-4
+    nesterov = False
+
+    no_cuda = False
+    gpu_ids = [0]
+
+    seed = 1
+
+    sync_bn = None
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PyTorch DeeplabV3 Training")
-    parser.add_argument('--dataset', type=str, default='leaf-cross-validation',
-                        choices=['pascal', 'coco', 'cityscapes', 'leaf', 'leaf-cross-validation'],
-                        help='dataset name')
-    parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--batch-size', type=int, default=4)
-    parser.add_argument('--test-batch-size', type=int, default=4)
-    parser.add_argument('--lr', type=float, default=0.007)
-    parser.add_argument('--use-balanced-weights', action='store_true', default=False)
-    parser.add_argument('--momentum', type=float, default=0.9)
-    parser.add_argument('--weight-decay', type=float, default=5e-4)
-    parser.add_argument('--nesterov', action='store_true', default=False)
-    parser.add_argument('--no-cuda', action='store_true', default=False)
-    parser.add_argument('--gpu-ids', type=str, default='0')
-    parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--checkname', type=str, default='deeplab_mobilenet')
-    parser.add_argument('--ft', action='store_true', default=False)
 
-    args = parser.parse_args()
+    args = Args()
+
     args.cuda = not args.no_cuda and torch.cuda.is_available()
-    if args.cuda:
-        args.gpu_ids = [int(x) for x in args.gpu_ids.split(',')]
 
     cross_validation = CrossValidator(args)
+
     cross_validation.training_loop()
 
 
