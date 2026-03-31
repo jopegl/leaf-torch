@@ -13,6 +13,8 @@ from utils.metrics import Evaluator
 
 from modeling.deeplab_seg import DeepLab
 
+from utils.area_calc import calculate_leaf_area
+
 
 # ===== Colored logs =====
 class C:
@@ -76,7 +78,10 @@ class CrossValidator:
         NUM_FOLDS = 5
         device = 'cuda' if self.args.cuda else 'cpu'
 
-        fold_results = []
+        fold_results = {
+            'MIoU':[],
+            'Area_MAE':[]
+        }
 
         for fold in range(1, NUM_FOLDS + 1):
 
@@ -151,7 +156,7 @@ class CrossValidator:
                 model.train()
                 train_loss = 0
 
-                for batch_idx, (images, masks) in enumerate(train_loader):
+                for batch_idx, (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in enumerate(train_loader):
 
                     if batch_idx % 100 == 0:
 
@@ -186,7 +191,7 @@ class CrossValidator:
 
                 with torch.no_grad():
 
-                    for images, masks in val_loader:
+                    for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in val_loader:
 
                         images = images.to(device)
                         masks = masks.to(device)
@@ -255,7 +260,7 @@ class CrossValidator:
 
             with torch.no_grad():
 
-                for images, masks in test_loader:
+                for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in test_loader:
 
                     images = images.to(device)
                     masks = masks.to(device)
@@ -269,11 +274,36 @@ class CrossValidator:
 
                     evaluator.add_batch(masks, pred)
 
+                    for i in range(pred.shape[0]):
+                        pred_mask = pred[i]
+                        ow = int(orig_w[i])
+                        oh = int(orig_h[i])
+                        ps = float(pattern_side[i])
+                        ta = float(target_area[i])
+                        fn = filename[i]
+
+                        area_info = calculate_leaf_area(
+                            mask=pred_mask,
+                            pattern_side=ps,
+                            orig_w=ow,
+                            orig_h=oh
+                        )
+
+                        predicted_area = area_info["total_leaf_area_cm2"]
+
+                        if predicted_area is not None:
+                            evaluator.multileaf_area_results.append([predicted_area, ta])
+
             mIoU = evaluator.Mean_Intersection_over_Union()
+            area_mae = evaluator.calculate_mae()
 
             print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
+            print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
 
-            fold_results.append(mIoU)
+            fold_results["MIoU"].append(mIoU)
+            fold_results["Area_MAE"].append(area_mae)
+
+
 
         # ===== FINAL RESULTS =====
 
@@ -281,10 +311,14 @@ class CrossValidator:
         print(f"{C.BOLD}{C.HEADER}CROSS VALIDATION RESULTS{C.END}")
         print(f"{C.BOLD}{C.HEADER}================================={C.END}")
 
-        for i, res in enumerate(fold_results):
+        for i, res in enumerate(fold_results['MIoU']):
             print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
 
-        print(f"\n{C.BOLD}{C.GREEN}Mean mIoU:{C.END} {np.mean(fold_results):.4f}")
+        for i, res in enumerate(fold_results["Area_MAE"]):
+            print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
+
+        print(f"\n{C.BOLD}{C.GREEN}Mean mIoU:{C.END} {np.mean(fold_results['MIoU']):.4f}")
+        print(f"\n{C.BOLD}{C.GREEN}Mean MAE:{C.END} {np.mean(fold_results['Area_MAE']):.4f}")
 
 
 class Args:

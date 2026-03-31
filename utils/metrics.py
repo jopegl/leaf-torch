@@ -12,6 +12,7 @@ class Evaluator(object):
         self.area_pixel_count = 0.
         self.rer_leaf = []
         self.rer_marker = []
+        self.multileaf_area_results = []
 
     def Pixel_Accuracy(self):
         Acc = np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum()
@@ -55,6 +56,7 @@ class Evaluator(object):
         self.area_pixel_count = 0.
         self.rer_leaf = []
         self.rer_marker = []
+        self.multileaf_area_results = []
 
 
     def add_area_batch(self, pred_area, target_area):
@@ -119,3 +121,7 @@ class Evaluator(object):
         area_mae = self.area_abs_error_sum / self.area_pixel_count
         area_accuracy = 1.0 - area_mae
         return area_accuracy
+    
+    def calculate_mae(self):
+        mae = np.mean([abs(pred - target) for pred, target in self.multileaf_area_results])
+        return mae

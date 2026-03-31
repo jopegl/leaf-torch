@@ -1,19 +1,23 @@
 import os
 import glob
 import re
-import pandas as pd
 import torch
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
+import pandas as pd
+import cv2
+import xml.etree.ElementTree as ET
+from utils.area_calc import calculate_leaf_area
 
 class MultiLeafDataset(Dataset):
     NUM_CLASSES = 3
 
     def __init__(self, split, fold,
-                 img_dir="resized_dataset/dataset_processado/resized_fixed_512",
-                 mask_dir="resized_dataset/mascaras_processadas/resized_fixed_512",
+                 img_dir="resized_multileaf/images",
+                 mask_dir="resized_multileaf/masks",
+                 xml_dir = 'resized_multileaf/xmls',
                  fold_path="Folds",
                  img_size=512):
         
@@ -24,86 +28,71 @@ class MultiLeafDataset(Dataset):
         self.fold = fold
         self.img_dir = img_dir
         self.mask_dir = mask_dir
+        self.xml_dir = xml_dir
         self.img_size = img_size
-        self.samples = []
+        self.img_paths = []
+        self.mask_paths = []
+        self.xml_paths = []
+        self.complete_spreadsheet = os.path.join('final_dataset_spreadsheet.csv')
+        self.comp_df = pd.read_csv(self.complete_spreadsheet)
+        self.fold_path = fold_path
+        self.imgs_size = {}
+        self.marker_sides = {}
+        self.leaf_target_areas = {}
 
-        # --- LÓGICA DE FOLDS ---
-        todos_csvs = glob.glob(os.path.join(fold_path, "*.csv"))
-        csvs_folds = [f for f in todos_csvs if "leafmap" not in os.path.basename(f).lower()]
-        
-        # Garante a ordem correta dos Folds (1, 2, 3...)
-        csvs_folds.sort(key=lambda x: int(re.search(r'\d+', os.path.basename(x)).group()) if re.search(r'\d+', os.path.basename(x)) else 0)
-        
-        num_folds = len(csvs_folds)
-        if num_folds == 0:
-            raise ValueError(f"Nenhum CSV de Fold encontrado na pasta: {fold_path}")
+        self.original_img_path = os.path.join('dataset_consolidado/images')
+        for filename in os.listdir(self.original_img_path):
+            path = os.path.join(self.original_img_path, filename)
+            img = cv2.imread(path)
 
-        # Índices dos Folds (0-indexed)
-        idx_test = (fold - 1) % num_folds
-        idx_val = fold % num_folds 
+            if img is None:
+                continue
 
-        grupos_por_fold = {}
-        todos_grupos_mapeados = set()
-
-        # LEITURA LIMPA E DIRETA DO CSV
-        for i, csv_file in enumerate(csvs_folds):
-            try:
-                df = pd.read_csv(csv_file, header=4, encoding='utf-8')
+            orig_h, orig_w = img.shape[:2]
+            self.imgs_size[filename] = (orig_w, orig_h)
                 
-                # Limpa os nomes das colunas removendo espaços extras
-                df.columns = df.columns.str.strip()
-                
-                # Agora procura pela coluna correta: 'Group Image'
-                if 'Group Image' in df.columns:
-                    grupos = df['Group Image'].dropna().astype(str).str.strip().tolist()
-                    grupos_por_fold[i] = set(grupos)
-                    todos_grupos_mapeados.update(grupos)
-                else:
-                    print(f"[ERRO] Coluna 'Group Image' não encontrada no arquivo {os.path.basename(csv_file)}. Colunas achadas: {df.columns.tolist()}")
-                    grupos_por_fold[i] = set()
 
-            except Exception as e:
-                print(f"Erro ao ler o CSV {os.path.basename(csv_file)}: {e}")
-                grupos_por_fold[i] = set()
+        if self.fold == 5:
+            self.val_fold = 1
+        else:
+            self.val_fold = self.fold + 1
 
-        grupos_test = grupos_por_fold[idx_test]
-        grupos_val = grupos_por_fold[idx_val]
-
-        # --- SEPARAÇÃO DAS IMAGENS ---
-        arquivos_imagens = [f for f in os.listdir(img_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        if split == 'test':
+            self._save_imgs(self.fold)
+        elif split == 'val':
+  
+            self._save_imgs(self.val_fold)
+        else:
+            folds_to_complete = [f for f in range(1, 6) if f not in (self.fold, self.val_fold)]
+            for f in folds_to_complete:
+                self._save_imgs(f)
         
-        # Ordena do nome maior para o menor para evitar que 'corn_1' dê match em 'corn_10'
-        grupos_ordenados = sorted(list(todos_grupos_mapeados), key=len, reverse=True)
+        for path in self.xml_paths:
+            tree = ET.parse(path)
+            root = tree.getroot()
 
-        for nome_img in arquivos_imagens:
-            grupo_da_imagem = None
-            for g in grupos_ordenados:
-                if nome_img.startswith(g + "_"):
-                    grupo_da_imagem = g
-                    break
+            pattern_side = float(root.find("pattern-side").text)
+            self.marker_sides[os.path.basename(path)] = pattern_side
 
-            if grupo_da_imagem in grupos_test:
-                destino = "test"
-            elif grupo_da_imagem in grupos_val:
-                destino = "val"
-            else:
-                destino = "train"
+            total_area = 0.0
 
-            if destino == self.split:
-                caminho_img = os.path.join(img_dir, nome_img)
-                nome_base = os.path.splitext(nome_img)[0]
-                caminho_mask = os.path.join(mask_dir, f"{nome_base}.png")
-                
-                if os.path.exists(caminho_mask):
-                    self.samples.append((caminho_img, caminho_mask))
+            for leaf in root.findall("objects/leaf"):
+                area_tag = leaf.find("dimensions/area")
+                if area_tag is not None and area_tag.text is not None:
+                    total_area += float(area_tag.text)
+            self.leaf_target_areas[os.path.basename(path)] = total_area
 
-        print(f"Dataset carregado -> Split: {self.split.upper():<5} | Fold: {self.fold} | Amostras: {len(self.samples)}")
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.img_paths)
 
     def __getitem__(self, idx):
-        img_path, mask_path = self.samples[idx]
+        img_path = self.img_paths[idx]
+        mask_path = self.mask_paths[idx]
+        xml_path = self.xml_paths[idx]
+
+        filename = os.path.basename(img_path)
+        orig_w, orig_h = self.imgs_size[filename]
 
         image = Image.open(img_path).convert("RGB")
         image = TF.resize(image, (self.img_size, self.img_size))
@@ -117,4 +106,26 @@ class MultiLeafDataset(Dataset):
                          interpolation=Image.NEAREST)
         mask = torch.tensor(np.array(mask), dtype=torch.long)
 
-        return image, mask
+        pattern_side = self.marker_sides[os.path.basename(xml_path)]
+        target_area = self.leaf_target_areas[os.path.basename(xml_path)]
+
+        return image, mask, orig_w, orig_h, filename, pattern_side, target_area
+    
+    def _save_imgs(self, fold):
+        current_fold = os.path.join(self.fold_path, f'fold_{fold}.csv')
+        df = pd.read_csv(current_fold)
+        todas_instancias = df['Instances'].str.split(',').explode().str.strip().tolist()
+        df_filtrado = self.comp_df[self.comp_df['Group'].isin(todas_instancias)]
+
+        nomes_arquivos = df_filtrado['Current Name'].tolist()
+
+        self.img_paths.extend([os.path.join(self.img_dir, f) for f in nomes_arquivos])
+
+        self.mask_paths.extend([
+            os.path.join(self.mask_dir, os.path.splitext(f)[0] + ".png") 
+            for f in nomes_arquivos
+        ])
+        self.xml_paths.extend([
+            os.path.join(self.xml_dir, os.path.splitext(f)[0] + ".xml") 
+            for f in nomes_arquivos
+        ])
