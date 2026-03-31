@@ -1,0 +1,5 @@
+fold 1 - 195 imagens
+fold 2 - 250 imagens
+fold 3 - 201 imagens
+fold 4 - 274 imagens
+fold 5 - 169 imagens
