@@ -9,7 +9,6 @@ import torchvision.transforms.functional as TF
 import pandas as pd
 import cv2
 import xml.etree.ElementTree as ET
-from utils.area_calc import calculate_leaf_area
 
 class MultiLeafDataset(Dataset):
     NUM_CLASSES = 3
@@ -67,6 +66,20 @@ class MultiLeafDataset(Dataset):
             for f in folds_to_complete:
                 self._save_imgs(f)
         
+        unique_data = {}
+        for img_path, mask_path, xml_path in zip(self.img_paths, self.mask_paths, self.xml_paths):
+            filename = os.path.basename(img_path)
+            unique_data[filename] = (img_path, mask_path, xml_path)
+
+        self.img_paths = []
+        self.mask_paths = []
+        self.xml_paths = []
+
+        for img_path, mask_path, xml_path in unique_data.values():
+            self.img_paths.append(img_path)
+            self.mask_paths.append(mask_path)
+            self.xml_paths.append(xml_path)
+        
         for path in self.xml_paths:
             tree = ET.parse(path)
             root = tree.getroot()
@@ -74,14 +87,34 @@ class MultiLeafDataset(Dataset):
             pattern_side = float(root.find("pattern-side").text)
             self.marker_sides[os.path.basename(path)] = pattern_side
 
+            invalid_area_found = False
             total_area = 0.0
 
             for leaf in root.findall("objects/leaf"):
                 area_tag = leaf.find("dimensions/area")
-                if area_tag is not None and area_tag.text is not None:
-                    total_area += float(area_tag.text)
-            self.leaf_target_areas[os.path.basename(path)] = total_area
 
+                if area_tag is not None and area_tag.text is not None:
+                    area_text = area_tag.text.strip()
+
+                    try:
+                        total_area += float(area_text)
+                    except ValueError:
+                        print(f"[WARNING] Invalid area in {os.path.basename(path)}: {area_text}")
+                        invalid_area_found = True
+                        break
+                else:
+                    invalid_area_found = True
+                    break
+
+            if invalid_area_found:
+                self.leaf_target_areas[os.path.basename(path)] = -1.0
+            else:
+                self.leaf_target_areas[os.path.basename(path)] = total_area
+        
+        print('=========================================')
+        print(f'{self.split} - {len(self.img_paths)}')
+        print(f'Unique {self.split} - {len(set([os.path.basename(p) for p in self.img_paths]))}')
+        print('=========================================')
 
     def __len__(self):
         return len(self.img_paths)
@@ -129,3 +162,9 @@ class MultiLeafDataset(Dataset):
             os.path.join(self.xml_dir, os.path.splitext(f)[0] + ".xml") 
             for f in nomes_arquivos
         ])
+
+if __name__ == '__main__':
+    train_set = MultiLeafDataset('train', 1)
+    val_set   = MultiLeafDataset('val', 1)
+    test_set  = MultiLeafDataset('test', 1)
+

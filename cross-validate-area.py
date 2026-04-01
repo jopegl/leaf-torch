@@ -72,6 +72,19 @@ class CrossValidator:
         ).build_loss('ce')
 
         os.makedirs("crossval_models", exist_ok=True)
+    
+    def save_area_results_csv(self, fold, area_results):
+        output_path = f"results/area_results_fold_{fold}.csv"
+
+        with open(output_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["filename", "predicted_area_cm2", "target_area_cm2", "abs_error_cm2"])
+
+            for filename, pred_area, target_area in area_results:
+                abs_error = abs(pred_area - target_area)
+                writer.writerow([filename, pred_area, target_area, abs_error])
+
+        print(f"{C.GREEN}✔ Area results saved:{C.END} {output_path}")
 
     def training_loop(self):
 
@@ -291,11 +304,13 @@ class CrossValidator:
 
                         predicted_area = area_info["total_leaf_area_cm2"]
 
-                        if predicted_area is not None:
-                            evaluator.multileaf_area_results.append([predicted_area, ta])
+                        if predicted_area is not None and ta > 0:
+                            evaluator.multileaf_area_results.append([fn, predicted_area, ta])
 
             mIoU = evaluator.Mean_Intersection_over_Union()
             area_mae = evaluator.calculate_mae()
+
+            self.save_area_results_csv(fold, evaluator.multileaf_area_results)
 
             print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
             print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
@@ -303,8 +318,7 @@ class CrossValidator:
             fold_results["MIoU"].append(mIoU)
             fold_results["Area_MAE"].append(area_mae)
 
-
-
+            
         # ===== FINAL RESULTS =====
 
         print(f"\n{C.BOLD}{C.HEADER}================================={C.END}")

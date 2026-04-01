@@ -123,5 +123,7 @@ class Evaluator(object):
         return area_accuracy
     
     def calculate_mae(self):
-        mae = np.mean([abs(pred - target) for pred, target in self.multileaf_area_results])
+        if len(self.multileaf_area_results) == 0:
+            return None
+        mae = np.mean([abs(pred - target) for filename, pred, target in self.multileaf_area_results])
         return mae
