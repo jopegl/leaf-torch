@@ -10,9 +10,9 @@ from modeling.deeplab_seg import DeepLab
 # Configurações e Caminho Único
 # ==========================
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CHECKPOINT = "crossval_models/best_model_fold_5.pth"
+CHECKPOINT = "crossval_models/best_model_fold_1.pth"
 # Selecionando a primeira imagem da sua lista para destaque
-SINGLE_IMAGE_PATH = "Orange_5_pat_6cm_dist_20cm_OneVision.jpg"
+SINGLE_IMAGE_PATH = "dataset_consolidado\\images\\bean020.jpg"
 
 # Preprocessamento (Padrão ImageNet conforme seu script)
 transform = transforms.Compose([

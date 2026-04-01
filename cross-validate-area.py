@@ -317,6 +317,16 @@ class CrossValidator:
 
             fold_results["MIoU"].append(mIoU)
             fold_results["Area_MAE"].append(area_mae)
+            
+            # ===== Save fold results to a txt file =====
+            fold_results_path = f"results/fold_{fold}_results.txt"
+
+            with open(fold_results_path, "w") as f:
+                f.write(f"Fold {fold} results\n")
+                f.write(f"mIoU: {mIoU:.6f}\n")
+                f.write(f"Area MAE: {area_mae:.6f}\n")
+
+            print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
 
             
         # ===== FINAL RESULTS =====
@@ -343,7 +353,7 @@ class Args:
 
     workers = 0
 
-    epochs = 50
+    epochs = 70
     batch_size = 2
 
     lr = 0.01

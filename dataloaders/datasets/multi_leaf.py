@@ -147,7 +147,7 @@ class MultiLeafDataset(Dataset):
     def _save_imgs(self, fold):
         current_fold = os.path.join(self.fold_path, f'fold_{fold}.csv')
         df = pd.read_csv(current_fold)
-        todas_instancias = df['Instances'].str.split(',').explode().str.strip().tolist()
+        todas_instancias = df['Group Image'].str.split(',').explode().str.strip().tolist()
         df_filtrado = self.comp_df[self.comp_df['Group'].isin(todas_instancias)]
 
         nomes_arquivos = df_filtrado['Current Name'].tolist()
