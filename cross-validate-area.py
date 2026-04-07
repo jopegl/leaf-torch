@@ -397,7 +397,7 @@ class Args:
 
     sync_bn = None
 
-    val_mode = False
+    val_mode = True
 
     area_mode = False
 
