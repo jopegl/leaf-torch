@@ -110,8 +110,8 @@ class CrossValidator:
 
             train_set = multi_leaf.MultiLeafDataset('train', fold, val_mode=self.val_mode)
             if self.val_mode:
-                val_set   = multi_leaf.MultiLeafDataset('val', fold, self.val_mode)
-            test_set  = multi_leaf.MultiLeafDataset('test', fold, self.val_mode)
+                val_set   = multi_leaf.MultiLeafDataset('val', fold, val_mode=self.val_mode)
+            test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode)
 
             if self.val_mode:
                 print(
