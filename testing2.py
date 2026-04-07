@@ -12,7 +12,7 @@ from modeling.deeplab_seg import DeepLab
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CHECKPOINT = "crossval_models/best_model_fold_1.pth"
 # Selecionando a primeira imagem da sua lista para destaque
-SINGLE_IMAGE_PATH = "dataset_consolidado\\images\\bean020.jpg"
+SINGLE_IMAGE_PATH = "dataset_consolidado\\images\\bell pepper004.jpg"
 
 # Preprocessamento (Padrão ImageNet conforme seu script)
 transform = transforms.Compose([

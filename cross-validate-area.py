@@ -33,14 +33,17 @@ class CrossValidator:
     def __init__(self, args):
 
         self.args = args
+        self.val_mode = args.val_mode
+        self.area_mode = args.area_mode
 
         print(f"{C.CYAN}[DEBUG] Dataset: {args.dataset}{C.END}")
 
         torch.manual_seed(args.seed)
         np.random.seed(args.seed)
 
-        temp_dataset = multi_leaf.MultiLeafDataset('train', 1)
+        temp_dataset = multi_leaf.MultiLeafDataset('train', 1, val_mode=self.val_mode)
         self.num_class = temp_dataset.NUM_CLASSES
+  
 
         print(
             f"{C.BOLD}{C.GREEN}✔ Number of classes detected:{C.END} "
@@ -72,6 +75,7 @@ class CrossValidator:
         ).build_loss('ce')
 
         os.makedirs("crossval_models", exist_ok=True)
+        os.makedirs('all_models_no_area', exist_ok=True)
     
     def save_area_results_csv(self, fold, area_results):
         output_path = f"results/area_results_fold_{fold}.csv"
@@ -104,16 +108,24 @@ class CrossValidator:
 
             evaluator = Evaluator(self.num_class)
 
-            train_set = multi_leaf.MultiLeafDataset('train', fold)
-            val_set   = multi_leaf.MultiLeafDataset('val', fold)
-            test_set  = multi_leaf.MultiLeafDataset('test', fold)
+            train_set = multi_leaf.MultiLeafDataset('train', fold, val_mode=self.val_mode)
+            if self.val_mode:
+                val_set   = multi_leaf.MultiLeafDataset('val', fold, self.val_mode)
+            test_set  = multi_leaf.MultiLeafDataset('test', fold, self.val_mode)
 
-            print(
-                f"{C.CYAN}Dataset sizes → "
-                f"Train: {len(train_set)} | "
-                f"Val: {len(val_set)} | "
-                f"Test: {len(test_set)}{C.END}"
-            )
+            if self.val_mode:
+                print(
+                    f"{C.CYAN}Dataset sizes → "
+                    f"Train: {len(train_set)} | "
+                    f"Val: {len(val_set)} | "
+                    f"Test: {len(test_set)}{C.END}"
+                )
+            else:
+                print(
+                    f"{C.CYAN}Dataset sizes → "
+                    f"Train: {len(train_set)} | "
+                    f"Test: {len(test_set)}{C.END}"
+                )
 
             train_loader = DataLoader(
                 train_set,
@@ -121,13 +133,14 @@ class CrossValidator:
                 shuffle=True,
                 num_workers=self.args.workers
             )
-
-            val_loader = DataLoader(
-                val_set,
-                batch_size=self.args.batch_size,
-                shuffle=False,
-                num_workers=self.args.workers
-            )
+            
+            if self.val_mode:
+                val_loader = DataLoader(
+                    val_set,
+                    batch_size=self.args.batch_size,
+                    shuffle=False,
+                    num_workers=self.args.workers
+                )
 
             test_loader = DataLoader(
                 test_set,
@@ -159,6 +172,11 @@ class CrossValidator:
             )
 
             best_val_loss = float('inf')
+
+            if self.val_mode:
+                model_path = f"crossval_models/best_model_fold_{fold}.pth"
+            else:
+                model_path = f"all_models_no_area/model_fold_{fold}.pth"
 
             for epoch in range(self.args.epochs):
 
@@ -196,43 +214,46 @@ class CrossValidator:
                 train_loss /= len(train_loader)
 
                 # ===== VALIDATION =====
+                val_loss = None
+                val_miou = None
+                val_acc = None
+                if self.val_mode:
+                    model.eval()
+                    val_loss = 0
 
-                model.eval()
-                val_loss = 0
+                    evaluator.reset()
 
-                evaluator.reset()
+                    with torch.no_grad():
 
-                with torch.no_grad():
+                        for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in val_loader:
 
-                    for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in val_loader:
+                            images = images.to(device)
+                            masks = masks.to(device)
 
-                        images = images.to(device)
-                        masks = masks.to(device)
+                            preds = model(images)
 
-                        preds = model(images)
+                            loss = self.seg_loss(preds, masks)
 
-                        loss = self.seg_loss(preds, masks)
+                            val_loss += loss.item()
 
-                        val_loss += loss.item()
+                            preds_np = preds.detach().cpu().numpy()
+                            masks_np = masks.detach().cpu().numpy()
 
-                        preds_np = preds.detach().cpu().numpy()
-                        masks_np = masks.detach().cpu().numpy()
+                            pred = np.argmax(preds_np, axis=1)
 
-                        pred = np.argmax(preds_np, axis=1)
+                            evaluator.add_batch(masks_np, pred)
 
-                        evaluator.add_batch(masks_np, pred)
+                    val_loss /= len(val_loader)
 
-                val_loss /= len(val_loader)
+                    val_miou = evaluator.Mean_Intersection_over_Union()
+                    val_acc = evaluator.Pixel_Accuracy()
 
-                val_miou = evaluator.Mean_Intersection_over_Union()
-                val_acc = evaluator.Pixel_Accuracy()
-
-                print(
-                    f"{C.GREEN}Train Loss:{C.END} {train_loss:.4f} | "
-                    f"{C.YELLOW}Val Loss:{C.END} {val_loss:.4f} | "
-                    f"{C.CYAN}Val mIoU:{C.END} {val_miou:.4f} | "
-                    f"{C.BLUE}Val Acc:{C.END} {val_acc:.4f}"
-                )
+                    print(
+                        f"{C.GREEN}Train Loss:{C.END} {train_loss:.4f} | "
+                        f"{C.YELLOW}Val Loss:{C.END} {val_loss:.4f} | "
+                        f"{C.CYAN}Val mIoU:{C.END} {val_miou:.4f} | "
+                        f"{C.BLUE}Val Acc:{C.END} {val_acc:.4f}"
+                    )
 
                 # ===== Save metrics =====
 
@@ -242,31 +263,24 @@ class CrossValidator:
                         fold,
                         epoch + 1,
                         train_loss,
-                        val_loss,
-                        val_miou,
-                        val_acc
+                        val_loss if val_loss is not None else "",
+                        val_miou if val_miou is not None else "",
+                        val_acc if val_acc is not None else ""
                     ])
 
-                if val_loss < best_val_loss:
-
-                    best_val_loss = val_loss
-
-                    torch.save(
-                        model.state_dict(),
-                        f"crossval_models/best_model_fold_{fold}.pth"
-                    )
-
-                    print(f"{C.GREEN}✔ Best model updated{C.END}")
+                if self.val_mode:
+                    if val_loss < best_val_loss:
+                        best_val_loss = val_loss
+                        torch.save(model.state_dict(), model_path)
+                        print(f"{C.GREEN}✔ Best model updated{C.END}")
+                else:
+                    torch.save(model.state_dict(), model_path)
 
             # ===== TEST =====
 
             print(f"\n{C.CYAN}Testing best model...{C.END}")
 
-            model.load_state_dict(
-                torch.load(
-                    f"crossval_models/best_model_fold_{fold}.pth"
-                )
-            )
+            model.load_state_dict(torch.load(model_path))
 
             model.eval()
             evaluator.reset()
@@ -287,46 +301,59 @@ class CrossValidator:
 
                     evaluator.add_batch(masks, pred)
 
-                    for i in range(pred.shape[0]):
-                        pred_mask = pred[i]
-                        ow = int(orig_w[i])
-                        oh = int(orig_h[i])
-                        ps = float(pattern_side[i])
-                        ta = float(target_area[i])
-                        fn = filename[i]
+                    if self.area_mode:
+                        for i in range(pred.shape[0]):
+                            pred_mask = pred[i]
+                            ow = int(orig_w[i])
+                            oh = int(orig_h[i])
+                            ps = float(pattern_side[i])
+                            ta = float(target_area[i])
+                            fn = filename[i]
 
-                        area_info = calculate_leaf_area(
-                            mask=pred_mask,
-                            pattern_side=ps,
-                            orig_w=ow,
-                            orig_h=oh
-                        )
+                            area_info = calculate_leaf_area(
+                                mask=pred_mask,
+                                pattern_side=ps,
+                                orig_w=ow,
+                                orig_h=oh
+                            )
 
-                        predicted_area = area_info["total_leaf_area_cm2"]
+                            predicted_area = area_info["total_leaf_area_cm2"]
 
-                        if predicted_area is not None and ta > 0:
-                            evaluator.multileaf_area_results.append([fn, predicted_area, ta])
+                            if predicted_area is not None and ta > 0:
+                                evaluator.multileaf_area_results.append([fn, predicted_area, ta])
 
             mIoU = evaluator.Mean_Intersection_over_Union()
-            area_mae = evaluator.calculate_mae()
 
-            self.save_area_results_csv(fold, evaluator.multileaf_area_results)
+            if self.area_mode:
+                area_mae = evaluator.calculate_mae()
+            
+            if self.area_mode:
+                self.save_area_results_csv(fold, evaluator.multileaf_area_results)
 
             print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
-            print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
-
             fold_results["MIoU"].append(mIoU)
-            fold_results["Area_MAE"].append(area_mae)
             
-            # ===== Save fold results to a txt file =====
-            fold_results_path = f"results/fold_{fold}_results.txt"
+            if self.area_mode:
+                print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
+                fold_results["Area_MAE"].append(area_mae)      
+                # ===== Save fold results to a txt file =====
+                fold_results_path = f"results/fold_{fold}_w_area_results.txt"
 
-            with open(fold_results_path, "w") as f:
-                f.write(f"Fold {fold} results\n")
-                f.write(f"mIoU: {mIoU:.6f}\n")
-                f.write(f"Area MAE: {area_mae:.6f}\n")
+                with open(fold_results_path, "w") as f:
+                    f.write(f"Fold {fold} results\n")
+                    f.write(f"mIoU: {mIoU:.6f}\n")
+                    f.write(f"Area MAE: {area_mae:.6f}\n")
 
-            print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
+                print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
+            else:  
+                # ===== Save fold results to a txt file =====
+                fold_results_path = f"results/fold_{fold}_results.txt"
+
+                with open(fold_results_path, "w") as f:
+                    f.write(f"Fold {fold} results\n")
+                    f.write(f"mIoU: {mIoU:.6f}\n")
+
+                print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
 
             
         # ===== FINAL RESULTS =====
@@ -342,7 +369,9 @@ class CrossValidator:
             print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
 
         print(f"\n{C.BOLD}{C.GREEN}Mean mIoU:{C.END} {np.mean(fold_results['MIoU']):.4f}")
-        print(f"\n{C.BOLD}{C.GREEN}Mean MAE:{C.END} {np.mean(fold_results['Area_MAE']):.4f}")
+
+        if self.area_mode:
+            print(f"\n{C.BOLD}{C.GREEN}Mean MAE:{C.END} {np.mean(fold_results['Area_MAE']):.4f}")
 
 
 class Args:
@@ -367,6 +396,10 @@ class Args:
     seed = 1
 
     sync_bn = None
+
+    val_mode = False
+
+    area_mode = False
 
 
 def main():
