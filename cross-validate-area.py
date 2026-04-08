@@ -8,7 +8,7 @@ from dataloaders.datasets import multi_leaf
 from torch.utils.data import DataLoader
 
 from utils.loss import SegmentationLosses
-from utils.calculate_weights import calculate_weigths_labels
+from torch.optim.lr_scheduler import StepLR
 from utils.metrics import Evaluator
 
 from modeling.deeplab_seg import DeepLab
@@ -39,11 +39,9 @@ class CrossValidator:
         print(f"{C.CYAN}[DEBUG] Dataset: {args.dataset}{C.END}")
 
         torch.manual_seed(args.seed)
-        np.random.seed(args.seed)
+        np.random.seed(args.seed)  
 
-        temp_dataset = multi_leaf.MultiLeafDataset('train', 1, val_mode=self.val_mode)
-        self.num_class = temp_dataset.NUM_CLASSES
-  
+        self.num_class = args.num_class
 
         print(
             f"{C.BOLD}{C.GREEN}✔ Number of classes detected:{C.END} "
@@ -61,6 +59,7 @@ class CrossValidator:
             writer.writerow([
                 "fold",
                 "epoch",
+                "learning_rate",
                 "train_loss",
                 "val_loss",
                 "val_miou",
@@ -108,10 +107,10 @@ class CrossValidator:
 
             evaluator = Evaluator(self.num_class)
 
-            train_set = multi_leaf.MultiLeafDataset('train', fold, val_mode=self.val_mode)
+            train_set = multi_leaf.MultiLeafDataset('train', fold, val_mode=self.val_mode, num_classes=self.num_class)
             if self.val_mode:
-                val_set   = multi_leaf.MultiLeafDataset('val', fold, val_mode=self.val_mode)
-            test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode)
+                val_set   = multi_leaf.MultiLeafDataset('val', fold, val_mode=self.val_mode, num_classes=self.num_class)
+            test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode, num_classes=self.num_class)
 
             if self.val_mode:
                 print(
@@ -171,7 +170,13 @@ class CrossValidator:
                 nesterov=self.args.nesterov
             )
 
-            best_val_loss = float('inf')
+            scheduler = StepLR(
+                optimizer,
+                step_size=self.args.step_size,
+                gamma=self.args.gamma
+            )
+
+            best_val_miou = -1
 
             if self.val_mode:
                 model_path = f"crossval_models/best_model_fold_{fold}.pth"
@@ -180,7 +185,8 @@ class CrossValidator:
 
             for epoch in range(self.args.epochs):
 
-                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END}")
+                current_lr = optimizer.param_groups[0]['lr']
+                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END} | {C.CYAN}LR: {current_lr:.6f}{C.END}")
 
                 # ===== TRAIN =====
 
@@ -262,6 +268,7 @@ class CrossValidator:
                     writer.writerow([
                         fold,
                         epoch + 1,
+                        current_lr,
                         train_loss,
                         val_loss if val_loss is not None else "",
                         val_miou if val_miou is not None else "",
@@ -269,12 +276,14 @@ class CrossValidator:
                     ])
 
                 if self.val_mode:
-                    if val_loss < best_val_loss:
-                        best_val_loss = val_loss
+                    if val_miou > best_val_miou:
+                        best_val_miou = val_miou
                         torch.save(model.state_dict(), model_path)
-                        print(f"{C.GREEN}✔ Best model updated{C.END}")
+                        print(f"{C.GREEN}✔ Best model updated (mIoU){C.END}")
                 else:
                     torch.save(model.state_dict(), model_path)
+                
+                scheduler.step()
 
             # ===== TEST =====
 
@@ -390,6 +399,9 @@ class Args:
     weight_decay = 5e-4
     nesterov = False
 
+    step_size = 15
+    gamma = 0.1
+
     no_cuda = False
     gpu_ids = [0]
 
@@ -401,6 +413,7 @@ class Args:
 
     area_mode = False
 
+    num_class = 3
 
 def main():
 

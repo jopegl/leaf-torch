@@ -19,15 +19,14 @@ def get_base_dir():
 
 
 class MultiLeafDataset(Dataset):
-    NUM_CLASSES = 2
-
     def __init__(self, split, fold,
                  img_dir="resized_multileaf/images",
                  mask_dir="resized_multileaf/masks",
                  xml_dir='resized_multileaf/xmls',
                  fold_path="Folds",
                  img_size=512,
-                 val_mode=True):
+                 val_mode=True,
+                 num_classes = 2):
 
         if split not in ['train', 'val', 'test']:
             raise ValueError("O parâmetro 'split' deve ser 'train', 'val' ou 'test'.")
@@ -42,6 +41,7 @@ class MultiLeafDataset(Dataset):
         self.marker_sides = {}
         self.leaf_target_areas = {}
         self.val_fold = -1
+        self.NUM_CLASSES = num_classes
 
         self.base_dir = get_base_dir()
 
@@ -177,7 +177,14 @@ class MultiLeafDataset(Dataset):
         )
 
         mask = torch.tensor(np.array(mask), dtype=torch.long)
-        mask = ((mask == 1) | (mask == 2)).long()
+        if self.NUM_CLASSES == 2:
+            mask = ((mask == 1) | (mask == 2)).long()
+
+        elif self.NUM_CLASSES == 3:
+            mask = mask.long()
+
+        else:
+            raise ValueError(f"NUM_CLASSES={self.NUM_CLASSES} not supported. Use 2 or 3.")
 
         pattern_side = self.marker_sides[os.path.basename(xml_path)]
         target_area = self.leaf_target_areas[os.path.basename(xml_path)]
