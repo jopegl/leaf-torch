@@ -382,7 +382,7 @@ class Args:
 
     workers = 0
 
-    epochs = 70
+    epochs = 50
     batch_size = 2
 
     lr = 0.01

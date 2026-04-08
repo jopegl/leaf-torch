@@ -138,3 +138,5 @@ results_segunda_rodada
 training_metrics_fold_1.csv
 dataset_consolidado
 resized_multileaf
+test_images
+error_reports

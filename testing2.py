@@ -26,7 +26,7 @@ COLORS = np.array([[0, 0, 0], [255, 0, 0], [0, 255, 0]]) # BG, Marker, Leaf
 # ==========================
 # Carregar Modelo e Inferência
 # ==========================
-model = DeepLab(num_classes=3, backbone="xception", output_stride=16)
+model = DeepLab(num_classes=2, backbone="xception", output_stride=16)
 checkpoint = torch.load(CHECKPOINT, map_location=DEVICE)
 new_state_dict = {k.replace("module.", ""): v for k, v in checkpoint.items()}
 model.load_state_dict(new_state_dict)
