@@ -8,8 +8,8 @@ from dataloaders.datasets import multi_leaf
 from torch.utils.data import DataLoader
 
 from utils.loss import SegmentationLosses
-from torch.optim.lr_scheduler import StepLR
 from utils.metrics import Evaluator
+from utils.lr_scheduler import LR_Scheduler
 
 from modeling.deeplab_seg import DeepLab
 
@@ -170,10 +170,10 @@ class CrossValidator:
                 nesterov=self.args.nesterov
             )
 
-            scheduler = StepLR(
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer,
-                step_size=self.args.step_size,
-                gamma=self.args.gamma
+                T_max=self.args.epochs,
+                eta_min=1e-5
             )
 
             best_val_miou = -1
@@ -391,7 +391,7 @@ class Args:
 
     workers = 0
 
-    epochs = 50
+    epochs = 70
     batch_size = 2
 
     lr = 0.01

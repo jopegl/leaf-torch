@@ -157,18 +157,6 @@ class MultiLeafDataset(Dataset):
         image = TF.resize(image, (self.img_size, self.img_size))
         mask = TF.resize(mask, (self.img_size, self.img_size), interpolation=Image.NEAREST)
 
-        if self.split == "train":
-            if torch.rand(1).item() < 0.5:
-                image = TF.hflip(image)
-                mask = TF.hflip(mask)
-
-            angle = transforms.RandomRotation.get_params([-15, 15])
-            image = TF.rotate(image, angle)
-            mask = TF.rotate(mask, angle, interpolation=Image.NEAREST)
-
-            color_jitter = transforms.ColorJitter(brightness=0.2)
-            image = color_jitter(image)
-
         image = TF.to_tensor(image)
         image = TF.normalize(
             image,

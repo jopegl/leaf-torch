@@ -18,11 +18,27 @@ REPORT_DIR = "error_reports"
 IMG_SIZE = 512
 N_FOLDS = 5
 
-MODE = "error"
-
+MODE = "save"   # "error" ou "save"
 LOW_IOU_THRESHOLD = 0.65
-
 SAVE_CSV_REPORT = True
+
+# =========================
+# CONFIG DINÂMICA
+# =========================
+NUM_CLASSES = 3   # <-- troque para 2 ou 3 conforme seu modelo
+
+CLASS_NAMES = {
+    0: "background",
+    1: "leaf",
+    2: "pattern"
+}
+
+# Cores dinâmicas
+COLORS = np.array([
+    [0, 0, 0],        # background
+    [0, 255, 0],      # leaf
+    [255, 0, 0],      # pattern
+], dtype=np.uint8)
 
 transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
@@ -31,14 +47,13 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-COLORS = np.array([
-    [0, 0, 0],      # Fundo
-    [0, 255, 0],    # Folha/objeto
-], dtype=np.uint8)
 
-
-def load_model(checkpoint_path):
-    model = DeepLab(num_classes=2, backbone="xception", output_stride=16)
+def load_model(checkpoint_path, num_classes):
+    model = DeepLab(
+        num_classes=num_classes,
+        backbone="xception",
+        output_stride=16
+    )
 
     checkpoint = torch.load(checkpoint_path, map_location=DEVICE)
 
@@ -52,17 +67,40 @@ def load_model(checkpoint_path):
     return model
 
 
-def compute_binary_ious(pred, target):
+def convert_mask_dynamic(mask_np, num_classes):
     """
-    pred, target: arrays 2D com valores 0 ou 1
-    Retorna:
-      - iou_bg
-      - iou_leaf
-      - miou_binary
+    Converte a GT para o formato esperado pelo modelo.
+    
+    Regras:
+    - num_classes = 2:
+        0 = background
+        1 = tudo que for folha/padrão (1 ou 2)
+    - num_classes = 3:
+        0 = background
+        1 = leaf
+        2 = pattern
     """
-    ious = []
+    if num_classes == 2:
+        return ((mask_np == 1) | (mask_np == 2)).astype(np.uint8)
 
-    for cls in [0, 1]:
+    elif num_classes == 3:
+        gt = np.zeros_like(mask_np, dtype=np.uint8)
+        gt[mask_np == 1] = 1
+        gt[mask_np == 2] = 2
+        return gt
+
+    else:
+        raise ValueError(f"NUM_CLASSES={num_classes} não suportado ainda.")
+
+
+def compute_multiclass_ious(pred, target, num_classes):
+    """
+    Calcula IoU por classe + mIoU.
+    """
+    ious = {}
+    valid_ious = []
+
+    for cls in range(num_classes):
         pred_c = (pred == cls)
         target_c = (target == cls)
 
@@ -74,17 +112,16 @@ def compute_binary_ious(pred, target):
         else:
             iou = intersection / union
 
-        ious.append(iou)
+        ious[cls] = iou
 
-    iou_bg, iou_leaf = ious
+        if not np.isnan(iou):
+            valid_ious.append(iou)
 
-    valid_ious = [x for x in ious if not np.isnan(x)]
     miou = np.mean(valid_ious) if len(valid_ious) > 0 else np.nan
+    return ious, miou
 
-    return iou_bg, iou_leaf, miou
 
-
-def run_inference_and_metrics(model, image_path, mask_path):
+def run_inference_and_metrics(model, image_path, mask_path, num_classes):
     # Imagem original
     img_raw = Image.open(image_path).convert("RGB")
 
@@ -95,22 +132,24 @@ def run_inference_and_metrics(model, image_path, mask_path):
     gt_mask = Image.open(mask_path).convert("L")
     gt_mask = gt_mask.resize((IMG_SIZE, IMG_SIZE), Image.NEAREST)
     gt_mask = np.array(gt_mask)
-    gt_mask = ((gt_mask == 1) | (gt_mask == 2)).astype(np.uint8)
+    gt_mask = convert_mask_dynamic(gt_mask, num_classes)
 
     # Predição
     with torch.no_grad():
         output = model(input_tensor)
         pred = torch.argmax(output, dim=1).squeeze(0).cpu().numpy().astype(np.uint8)
 
-    iou_bg, iou_leaf, miou_binary = compute_binary_ious(pred, gt_mask)
+    ious, miou = compute_multiclass_ious(pred, gt_mask, num_classes)
 
-    return pred, gt_mask, iou_bg, iou_leaf, miou_binary
+    return pred, gt_mask, ious, miou
 
-def save_prediction_figure(image_path, pred, save_path):
+
+def save_prediction_figure(image_path, pred, save_path, num_classes):
     img_raw = Image.open(image_path).convert("RGB")
     img_np = np.array(img_raw.resize((IMG_SIZE, IMG_SIZE)))
 
-    mask_colored = COLORS[pred].astype(np.uint8)
+    colors_used = COLORS[:num_classes]
+    mask_colored = colors_used[pred].astype(np.uint8)
     overlay = (0.5 * img_np + 0.5 * mask_colored).astype(np.uint8)
 
     plt.figure(figsize=(18, 6))
@@ -150,12 +189,13 @@ def main():
             print(f"[AVISO] Checkpoint não encontrado: {checkpoint_path}")
             continue
 
-        model = load_model(checkpoint_path)
+        model = load_model(checkpoint_path, NUM_CLASSES)
 
         test_dataset = MultiLeafDataset(
             split="test",
             fold=fold,
-            val_mode=False
+            val_mode=False,
+            num_classes=NUM_CLASSES
         )
 
         if MODE == "save":
@@ -171,57 +211,78 @@ def main():
             image_name = os.path.splitext(filename)[0]
 
             try:
-                pred, gt_mask, iou_bg, iou_leaf, miou_binary = run_inference_and_metrics(
-                    model, img_path, mask_path
+                pred, gt_mask, ious, miou = run_inference_and_metrics(
+                    model, img_path, mask_path, NUM_CLASSES
                 )
 
                 result = {
                     "fold": fold,
                     "filename": filename,
-                    "iou_bg": iou_bg,
-                    "iou_leaf": iou_leaf,
-                    "miou_binary": miou_binary
+                    "miou": miou
                 }
+
+                # adiciona iou por classe dinamicamente
+                for cls in range(NUM_CLASSES):
+                    class_name = CLASS_NAMES.get(cls, f"class_{cls}")
+                    result[f"iou_{class_name}"] = ious.get(cls, np.nan)
 
                 fold_results.append(result)
                 all_results.append(result)
 
                 if MODE == "save":
                     save_path = os.path.join(fold_output_dir, f"{image_name}_pred.png")
-                    save_prediction_figure(img_path, pred, save_path)
+                    save_prediction_figure(img_path, pred, save_path, NUM_CLASSES)
                     print(f"[{i}/{len(test_dataset.img_paths)}] Salvo: {save_path}")
                 else:
-                    print(
-                        f"[{i}/{len(test_dataset.img_paths)}] {filename} | "
-                        f"IoU_leaf={iou_leaf:.4f} | mIoU={miou_binary:.4f}"
-                    )
+                    msg = f"[{i}/{len(test_dataset.img_paths)}] {filename} | mIoU={miou:.4f}"
+                    for cls in range(NUM_CLASSES):
+                        class_name = CLASS_NAMES.get(cls, f"class_{cls}")
+                        cls_iou = ious.get(cls, np.nan)
+                        msg += f" | IoU_{class_name}={cls_iou:.4f}" if not np.isnan(cls_iou) else f" | IoU_{class_name}=NaN"
+                    print(msg)
 
             except Exception as e:
                 print(f"[ERRO] Falha em {img_path}: {e}")
 
-    
         if len(fold_results) > 0:
             fold_df = pd.DataFrame(fold_results)
 
-            fold_mean_leaf = fold_df["iou_leaf"].mean()
-            fold_mean_miou = fold_df["miou_binary"].mean()
-            fold_std_leaf = fold_df["iou_leaf"].std()
+            # métrica principal de suspeita = leaf
+            leaf_col = "iou_leaf"
+            if leaf_col not in fold_df.columns:
+                print(f"[AVISO] Coluna {leaf_col} não encontrada. Pulando análise de suspeitas.")
+                continue
 
-            # Critério de outlier estatístico
-            outlier_threshold = fold_mean_leaf - 2 * fold_std_leaf if pd.notna(fold_std_leaf) else LOW_IOU_THRESHOLD
+            fold_mean_leaf = fold_df[leaf_col].mean()
+            fold_mean_miou = fold_df["miou"].mean()
+            fold_std_leaf = fold_df[leaf_col].std()
+
+            outlier_threshold = (
+                fold_mean_leaf - 2 * fold_std_leaf
+                if pd.notna(fold_std_leaf)
+                else LOW_IOU_THRESHOLD
+            )
 
             suspicious_df = fold_df[
-                (fold_df["iou_leaf"] < LOW_IOU_THRESHOLD) |
-                (fold_df["iou_leaf"] < outlier_threshold)
+                (fold_df[leaf_col] < LOW_IOU_THRESHOLD) |
+                (fold_df[leaf_col] < outlier_threshold)
             ].copy()
 
-            suspicious_df = suspicious_df.sort_values("iou_leaf")
+            suspicious_df = suspicious_df.sort_values(leaf_col)
 
             print("\n" + "-" * 50)
             print(f"RESUMO DO FOLD {fold}")
             print("-" * 50)
             print(f"Média IoU_leaf: {fold_mean_leaf:.4f}")
-            print(f"Média mIoU binário: {fold_mean_miou:.4f}")
+            print(f"Média mIoU: {fold_mean_miou:.4f}")
+
+            # mostra médias por classe
+            for cls in range(NUM_CLASSES):
+                class_name = CLASS_NAMES.get(cls, f"class_{cls}")
+                col = f"iou_{class_name}"
+                if col in fold_df.columns:
+                    print(f"Média IoU_{class_name}: {fold_df[col].mean():.4f}")
+
             print(f"Desvio padrão IoU_leaf: {fold_std_leaf:.4f}" if pd.notna(fold_std_leaf) else "Desvio padrão IoU_leaf: NaN")
             print(f"Limiar absoluto: {LOW_IOU_THRESHOLD:.2f}")
             print(f"Limiar estatístico do fold: {outlier_threshold:.4f}")
@@ -232,38 +293,53 @@ def main():
                     print(
                         f" - {row['filename']} | "
                         f"IoU_leaf={row['iou_leaf']:.4f} | "
-                        f"mIoU={row['miou_binary']:.4f}"
+                        f"mIoU={row['miou']:.4f}"
                     )
             else:
                 print("\nNenhuma imagem suspeita detectada neste fold.")
 
             if SAVE_CSV_REPORT:
                 fold_csv = os.path.join(REPORT_DIR, f"fold_{fold}_metrics.csv")
-                fold_df.sort_values("iou_leaf").to_csv(fold_csv, index=False)
+                fold_df.sort_values(leaf_col).to_csv(fold_csv, index=False)
                 print(f"\n[CSV] Relatório salvo em: {fold_csv}")
 
-
+    # =========================
+    # RESUMO GLOBAL
+    # =========================
     if len(all_results) > 0:
         all_df = pd.DataFrame(all_results)
 
-        global_mean_leaf = all_df["iou_leaf"].mean()
-        global_mean_miou = all_df["miou_binary"].mean()
-        global_std_leaf = all_df["iou_leaf"].std()
+        leaf_col = "iou_leaf"
 
-        global_outlier_threshold = global_mean_leaf - 2 * global_std_leaf if pd.notna(global_std_leaf) else LOW_IOU_THRESHOLD
+        global_mean_leaf = all_df[leaf_col].mean()
+        global_mean_miou = all_df["miou"].mean()
+        global_std_leaf = all_df[leaf_col].std()
+
+        global_outlier_threshold = (
+            global_mean_leaf - 2 * global_std_leaf
+            if pd.notna(global_std_leaf)
+            else LOW_IOU_THRESHOLD
+        )
 
         worst_cases = all_df[
-            (all_df["iou_leaf"] < LOW_IOU_THRESHOLD) |
-            (all_df["iou_leaf"] < global_outlier_threshold)
+            (all_df[leaf_col] < LOW_IOU_THRESHOLD) |
+            (all_df[leaf_col] < global_outlier_threshold)
         ].copy()
 
-        worst_cases = worst_cases.sort_values("iou_leaf")
+        worst_cases = worst_cases.sort_values(leaf_col)
 
         print("\n" + "=" * 60)
         print("RESUMO GLOBAL")
         print("=" * 60)
         print(f"Média global IoU_leaf: {global_mean_leaf:.4f}")
-        print(f"Média global mIoU binário: {global_mean_miou:.4f}")
+        print(f"Média global mIoU: {global_mean_miou:.4f}")
+
+        for cls in range(NUM_CLASSES):
+            class_name = CLASS_NAMES.get(cls, f"class_{cls}")
+            col = f"iou_{class_name}"
+            if col in all_df.columns:
+                print(f"Média global IoU_{class_name}: {all_df[col].mean():.4f}")
+
         print(f"Desvio padrão global IoU_leaf: {global_std_leaf:.4f}" if pd.notna(global_std_leaf) else "Desvio padrão global IoU_leaf: NaN")
         print(f"Limiar absoluto: {LOW_IOU_THRESHOLD:.2f}")
         print(f"Limiar estatístico global: {global_outlier_threshold:.4f}")
@@ -274,14 +350,14 @@ def main():
                 print(
                     f" - Fold {row['fold']} | {row['filename']} | "
                     f"IoU_leaf={row['iou_leaf']:.4f} | "
-                    f"mIoU={row['miou_binary']:.4f}"
+                    f"mIoU={row['miou']:.4f}"
                 )
         else:
             print("\nNenhum caso crítico global detectado.")
 
         if SAVE_CSV_REPORT:
             global_csv = os.path.join(REPORT_DIR, "all_folds_metrics.csv")
-            all_df.sort_values("iou_leaf").to_csv(global_csv, index=False)
+            all_df.sort_values(leaf_col).to_csv(global_csv, index=False)
             print(f"\n[CSV] Relatório global salvo em: {global_csv}")
 
     print("\nProcesso concluído.")
