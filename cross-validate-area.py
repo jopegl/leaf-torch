@@ -6,10 +6,12 @@ import torch
 from mypath import Path
 from dataloaders.datasets import multi_leaf
 from torch.utils.data import DataLoader
+from utils.calculate_weights import compute_class_weights
 
-from utils.loss import SegmentationLosses
+from utils.loss import SegmentationLosses, LovaszSoftmax
 from utils.metrics import Evaluator
 from utils.lr_scheduler import LR_Scheduler
+from utils.color import C
 
 from modeling.deeplab_seg import DeepLab
 
@@ -17,15 +19,7 @@ from utils.area_calc import calculate_leaf_area
 
 
 # ===== Colored logs =====
-class C:
-    HEADER = "\033[95m"
-    BLUE = "\033[94m"
-    CYAN = "\033[96m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    RED = "\033[91m"
-    BOLD = "\033[1m"
-    END = "\033[0m"
+
 
 
 class CrossValidator:
@@ -66,13 +60,6 @@ class CrossValidator:
                 "val_accuracy"
             ])
 
-        # ===== Loss =====
-
-        self.seg_loss = SegmentationLosses(
-            weight=None,
-            cuda=args.cuda
-        ).build_loss('ce')
-
         os.makedirs("crossval_models", exist_ok=True)
         os.makedirs('all_models_no_area', exist_ok=True)
     
@@ -111,6 +98,15 @@ class CrossValidator:
             if self.val_mode:
                 val_set   = multi_leaf.MultiLeafDataset('val', fold, val_mode=self.val_mode, num_classes=self.num_class)
             test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode, num_classes=self.num_class)
+
+                # ===== Loss =====
+            weights = compute_class_weights(train_set)
+            self.seg_loss = SegmentationLosses(
+                weight=weights,
+                cuda=self.args.cuda
+            ).build_loss('ce')
+
+            self.lovasz = LovaszSoftmax().to('cuda' if self.args.cuda else 'cpu')
 
             if self.val_mode:
                 print(
@@ -162,12 +158,10 @@ class CrossValidator:
             else:
                 model = model.to(device)
 
-            optimizer = torch.optim.SGD(
+            optimizer = torch.optim.AdamW(
                 model.parameters(),
                 lr=self.args.lr,
-                momentum=self.args.momentum,
-                weight_decay=self.args.weight_decay,
-                nesterov=self.args.nesterov
+                weight_decay=self.args.weight_decay
             )
 
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
@@ -210,7 +204,7 @@ class CrossValidator:
 
                     preds = model(images)
 
-                    loss = self.seg_loss(preds, masks)
+                    loss = self.seg_loss(preds, masks) * 0.8 + self.lovasz(preds, masks) * 0.2
 
                     loss.backward()
                     optimizer.step()
@@ -238,7 +232,7 @@ class CrossValidator:
 
                             preds = model(images)
 
-                            loss = self.seg_loss(preds, masks)
+                            loss = self.seg_loss(preds, masks) * 0.8 + self.lovasz(preds, masks) * 0.2
 
                             val_loss += loss.item()
 
@@ -394,7 +388,7 @@ class Args:
     epochs = 70
     batch_size = 2
 
-    lr = 0.01
+    lr = 0.001
     momentum = 0.9
     weight_decay = 5e-4
     nesterov = False
