@@ -140,3 +140,7 @@ dataset_consolidado
 resized_multileaf
 test_images
 error_reports
+cosine_augmentation
+poly-aug-results
+poly_best_results
+poly_test_images
