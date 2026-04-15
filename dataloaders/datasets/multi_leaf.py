@@ -298,29 +298,23 @@ class MultiLeafDataset(Dataset):
         # Data Augmentation (train only)
         # ==============================
         if self.split == "train":
-            scale = np.random.uniform(0.5, 2.0)
+            scale = np.random.uniform(0.75, 1.25)
             new_w, new_h = int(self.img_size * scale), int(self.img_size * scale)
             image = TF.resize(image, (new_h, new_w))
             mask = TF.resize(mask, (new_h, new_w), interpolation=Image.NEAREST)
 
-            if new_h > self.img_size or new_w > self.img_size:
-                top = np.random.randint(0, max(1, new_h - self.img_size))
-                left = np.random.randint(0, max(1, new_w - self.img_size))
-                image = TF.crop(image, top, left, self.img_size, self.img_size)
-                mask = TF.crop(mask, top, left, self.img_size, self.img_size)
+            if new_h > self.img_size and new_w > self.img_size:
+                top = np.random.randint(0, new_h - self.img_size)
+                left = np.random.randint(0, new_w - self.img_size)
             else:
-                pad_h = self.img_size - new_h
-                pad_w = self.img_size - new_w
-                image = TF.pad(image, (0, 0, pad_w, pad_h))
-                mask = TF.pad(mask, (0, 0, pad_w, pad_h), fill=0)
+                top, left = 0, 0
 
+            image = TF.crop(image, top, left, self.img_size, self.img_size)
+            mask = TF.crop(mask, top, left, self.img_size, self.img_size)
 
             if np.random.rand() < 0.5:
                 image = TF.hflip(image)
                 mask = TF.hflip(mask)
-            if np.random.rand() < 0.1:
-                image = TF.vflip(image)
-                mask = TF.vflip(mask)
 
     
             color_jitter = transforms.ColorJitter(
@@ -348,8 +342,8 @@ class MultiLeafDataset(Dataset):
         else:
             raise ValueError(f"NUM_CLASSES={self.NUM_CLASSES} not supported. Use 2 ou 3.")
 
-        pattern_side = self.marker_sides[filename]
-        target_area = self.leaf_target_areas[filename]
+        pattern_side = 1.0
+        target_area = 1.0
 
         return image, mask, orig_w, orig_h, filename, pattern_side, target_area
 

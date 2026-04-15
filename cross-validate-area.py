@@ -11,6 +11,7 @@ from utils.calculate_weights import compute_class_weights
 from utils.loss import SegmentationLosses, LovaszSoftmax
 from utils.metrics import Evaluator
 from utils.lr_scheduler import LR_Scheduler
+from torch.optim.lr_scheduler import PolynomialLR
 from utils.color import C
 
 from modeling.deeplab_seg import DeepLab
@@ -50,15 +51,15 @@ class CrossValidator:
 
         with open(self.csv_path, "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                "fold",
-                "epoch",
-                "learning_rate",
-                "train_loss",
-                "val_loss",
-                "val_miou",
-                "val_accuracy"
-            ])
+            header = [
+                "fold", "epoch", "learning_rate", "train_loss",
+                "val_loss", "val_miou", "val_accuracy"
+            ]
+
+            for i in range(self.num_class):
+                header.append(f"iou_class_{i}")
+
+            writer.writerow(header)
 
         os.makedirs("crossval_models", exist_ok=True)
         os.makedirs('all_models_no_area', exist_ok=True)
@@ -83,7 +84,8 @@ class CrossValidator:
 
         fold_results = {
             'MIoU':[],
-            'Area_MAE':[]
+            'Area_MAE':[],
+            'IoU_per_class': []
         }
 
         for fold in range(1, NUM_FOLDS + 1):
@@ -100,13 +102,11 @@ class CrossValidator:
             test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode, num_classes=self.num_class)
 
                 # ===== Loss =====
-            weights = compute_class_weights(train_set)
+            #weights = compute_class_weights(train_set, self.num_class, self.args.cuda)
             self.seg_loss = SegmentationLosses(
-                weight=weights,
+                weight=None,
                 cuda=self.args.cuda
             ).build_loss('ce')
-
-            self.lovasz = LovaszSoftmax().to('cuda' if self.args.cuda else 'cpu')
 
             if self.val_mode:
                 print(
@@ -164,10 +164,10 @@ class CrossValidator:
                 weight_decay=self.args.weight_decay
             )
 
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            scheduler = PolynomialLR(
                 optimizer,
-                T_max=self.args.epochs,
-                eta_min=1e-5
+                total_iters=self.args.epochs,
+                power=0.9  
             )
 
             best_val_miou = -1
@@ -204,7 +204,7 @@ class CrossValidator:
 
                     preds = model(images)
 
-                    loss = self.seg_loss(preds, masks) * 0.8 + self.lovasz(preds, masks) * 0.2
+                    loss = self.seg_loss(preds, masks)
 
                     loss.backward()
                     optimizer.step()
@@ -232,7 +232,7 @@ class CrossValidator:
 
                             preds = model(images)
 
-                            loss = self.seg_loss(preds, masks) * 0.8 + self.lovasz(preds, masks) * 0.2
+                            loss = self.seg_loss(preds, masks)
 
                             val_loss += loss.item()
 
@@ -247,6 +247,18 @@ class CrossValidator:
 
                     val_miou = evaluator.Mean_Intersection_over_Union()
                     val_acc = evaluator.Pixel_Accuracy()
+                    if self.num_class == 3:
+                        class_names = ["background", "leaf", "marker"]
+                    elif self.num_class == 2:
+                        class_names = ["background", "leaf"]
+                    else:
+                        class_names = [f"class_{i}" for i in range(self.num_class)]
+
+                    ious = evaluator.IoU_per_class()
+                    ious = np.nan_to_num(ious)
+
+                    for i, iou in enumerate(ious):
+                        print(f"IoU {class_names[i]}: {iou:.4f}")
 
                     print(
                         f"{C.GREEN}Train Loss:{C.END} {train_loss:.4f} | "
@@ -259,15 +271,23 @@ class CrossValidator:
 
                 with open(self.csv_path, "a", newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerow([
+                    row = [
                         fold,
                         epoch + 1,
                         current_lr,
                         train_loss,
                         val_loss if val_loss is not None else "",
                         val_miou if val_miou is not None else "",
-                        val_acc if val_acc is not None else ""
-                    ])
+                        val_acc if val_acc is not None else "",
+                    ]
+
+                    if self.val_mode:
+                        for i in range(self.num_class):
+                            row.append(ious[i])
+                    else:
+                        row.extend([""] * self.num_class)
+
+                    writer.writerow(row)
 
                 if self.val_mode:
                     if val_miou > best_val_miou:
@@ -327,6 +347,19 @@ class CrossValidator:
 
             mIoU = evaluator.Mean_Intersection_over_Union()
 
+            if self.num_class == 3:
+                class_names = ["background", "leaf", "marker"]
+            elif self.num_class == 2:
+                class_names = ["background", "leaf"]
+            else:
+                class_names = [f"class_{i}" for i in range(self.num_class)]
+
+            ious_test = evaluator.IoU_per_class()
+            ious_test = np.nan_to_num(ious_test)
+
+            for i, iou in enumerate(ious_test):
+                print(f"[TEST] IoU {class_names[i]}: {iou:.4f}")
+
             if self.area_mode:
                 area_mae = evaluator.calculate_mae()
             
@@ -335,6 +368,7 @@ class CrossValidator:
 
             print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
             fold_results["MIoU"].append(mIoU)
+            fold_results["IoU_per_class"].append(ious_test)
             
             if self.area_mode:
                 print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
@@ -346,6 +380,8 @@ class CrossValidator:
                     f.write(f"Fold {fold} results\n")
                     f.write(f"mIoU: {mIoU:.6f}\n")
                     f.write(f"Area MAE: {area_mae:.6f}\n")
+                    for i, iou in enumerate(ious_test):
+                        f.write(f"IoU {class_names[i]}: {iou:.6f}\n")
 
                 print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
             else:  
@@ -355,6 +391,8 @@ class CrossValidator:
                 with open(fold_results_path, "w") as f:
                     f.write(f"Fold {fold} results\n")
                     f.write(f"mIoU: {mIoU:.6f}\n")
+                    for i, iou in enumerate(ious_test):
+                        f.write(f"IoU {class_names[i]}: {iou:.6f}\n")
 
                 print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
 
@@ -388,7 +426,7 @@ class Args:
     epochs = 70
     batch_size = 2
 
-    lr = 0.001
+    lr = 0.0003
     momentum = 0.9
     weight_decay = 5e-4
     nesterov = False
@@ -407,7 +445,7 @@ class Args:
 
     area_mode = False
 
-    num_class = 3
+    num_class = 2   
 
 def main():
 

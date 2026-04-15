@@ -127,3 +127,12 @@ class Evaluator(object):
             return None
         mae = np.mean([abs(pred - target) for filename, pred, target in self.multileaf_area_results])
         return mae
+    
+    def IoU_per_class(self):
+        iou = np.diag(self.confusion_matrix) / (
+            np.sum(self.confusion_matrix, axis=1) +
+            np.sum(self.confusion_matrix, axis=0) -
+            np.diag(self.confusion_matrix)
+        )
+        
+        return iou

@@ -11,8 +11,8 @@ from dataloaders.datasets.multi_leaf import MultiLeafDataset
 
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CHECKPOINT_DIR = "crossval_models"
-OUTPUT_DIR = "test_images"
+CHECKPOINT_DIR = "poly_best_models"
+OUTPUT_DIR = "poly_test_images"
 REPORT_DIR = "error_reports"
 
 IMG_SIZE = 512
