@@ -11,7 +11,7 @@ from dataloaders.datasets.multi_leaf import MultiLeafDataset
 
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CHECKPOINT_DIR = "crossval_models_2_classes"
+CHECKPOINT_DIR = "area_lab/crossval_models_2_classes"
 OUTPUT_DIR = "2_classes_test_images"
 REPORT_DIR = "error_reports"
 

@@ -1,0 +1,1089 @@
+Fold,Image Name,Specie,N. of Leaves,Instances in Image
+1,corn007.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn110.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn008.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn111.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn009.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn112.jpg,Corn,6,"corn_15, corn_21, corn_25, corn_26, corn_28, corn_30"
+1,corn010.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn113.jpg,Corn,7,"corn_04, corn_05, corn_07, corn_08, corn_09, corn_12, corn_13"
+1,corn011.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn114.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn012.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn115.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn013.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn116.jpg,Corn,7,"corn_03, corn_04, corn_07, corn_08, corn_09, corn_10, corn_12"
+1,corn014.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn117.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn015.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn118.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn016.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn119.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn017.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn120.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn018.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn121.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn019.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,corn122.jpg,Corn,9,"corn_01, corn_02, corn_03, corn_04, corn_06, corn_07, corn_08, corn_09, corn_13"
+1,bean059.jpg,Bean,1,bean_04
+1,bell pepper001.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper013.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper002.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper014.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper003.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper015.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper004.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper016.jpg,Bell Pepper,1,bell_pepper_01
+1,bell pepper009.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper021.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper010.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper022.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper011.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper023.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper012.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,bell pepper024.jpg,Bell Pepper,2,"bell_pepper_01, bell_pepper_02"
+1,coffee053.jpg,Coffee,1,coffee_04
+1,coffee054.jpg,Coffee,1,coffee_04
+1,coffee055.jpg,Coffee,1,coffee_04
+1,coffee056.jpg,Coffee,1,coffee_04
+1,coffee057.jpg,Coffee,1,coffee_04
+1,coffee058.jpg,Coffee,1,coffee_04
+1,coffee059.jpg,Coffee,2,"coffee_04, coffee_05"
+1,coffee060.jpg,Coffee,2,"coffee_04, coffee_05"
+1,coffee061.jpg,Coffee,2,"coffee_04, coffee_05"
+1,coffee068.jpg,Coffee,1,coffee_05
+1,coffee069.jpg,Coffee,1,coffee_05
+1,coffee070.jpg,Coffee,1,coffee_05
+1,coffee071.jpg,Coffee,1,coffee_05
+1,coffee072.jpg,Coffee,1,coffee_05
+1,coffee073.jpg,Coffee,1,coffee_05
+1,corn040.jpg,Corn,1,corn_24
+1,corn139.jpg,Corn,1,corn_24
+1,corn041.jpg,Corn,1,corn_24
+1,corn140.jpg,Corn,1,corn_24
+1,corn042.jpg,Corn,1,corn_24
+1,corn141.jpg,Corn,1,corn_24
+1,corn043.jpg,Corn,1,corn_24
+1,corn142.jpg,Corn,1,corn_24
+1,corn096.jpg,Corn,1,corn_21
+1,corn195.jpg,Corn,1,corn_21
+1,corn097.jpg,Corn,1,corn_21
+1,corn196.jpg,Corn,1,corn_21
+1,corn098.jpg,Corn,1,corn_21
+1,corn197.jpg,Corn,1,corn_21
+1,corn099.jpg,Corn,1,corn_21
+1,corn198.jpg,Corn,1,corn_21
+1,eucalyptus001.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus046.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus002.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus047.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus003.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus048.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus004.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus049.jpg,Eucalyptus,1,eucalyptus_10
+1,eucalyptus005.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus074.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus006.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus075.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus007.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus076.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus008.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus077.jpg,Eucalyptus,1,eucalyptus_01
+1,eucalyptus078.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus151.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus079.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus152.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus080.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus153.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus081.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus154.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus082.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus155.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus083.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus156.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus084.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus157.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus085.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus158.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus086.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus159.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus087.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus160.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus088.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus161.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus089.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus162.jpg,Eucalyptus,1,eucalyptus_31
+1,eucalyptus029.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus110.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus030.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus111.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus031.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus112.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus032.jpg,Eucalyptus,1,eucalyptus_07
+1,eucalyptus113.jpg,Eucalyptus,1,eucalyptus_07
+1,guava001.jpg,Guava,1,guava_01
+1,guava013.jpg,Guava,1,guava_01
+1,guava002.jpg,Guava,1,guava_01
+1,guava003.jpg,Guava,1,guava_01
+1,guava014.jpg,Guava,1,guava_01
+1,guava004.jpg,Guava,1,guava_01
+1,guava015.jpg,Guava,1,guava_01
+1,guava005.jpg,Guava,1,guava_01
+1,guava016.jpg,Guava,1,guava_01
+1,guava006.jpg,Guava,1,guava_01
+1,guava017.jpg,Guava,1,guava_01
+1,orange029.jpg,Orange,1,orange_05
+1,orange069.jpg,Orange,1,orange_05
+1,orange030.jpg,Orange,1,orange_05
+1,orange070.jpg,Orange,1,orange_05
+1,orange031.jpg,Orange,1,orange_05
+1,orange071.jpg,Orange,1,orange_05
+1,orange032.jpg,Orange,1,orange_05
+1,orange072.jpg,Orange,1,orange_05
+1,orange033.jpg,Orange,1,orange_05
+1,orange073.jpg,Orange,1,orange_05
+1,orange034.jpg,Orange,1,orange_05
+1,orange074.jpg,Orange,1,orange_05
+1,orange035.jpg,Orange,1,orange_05
+1,orange075.jpg,Orange,1,orange_05
+1,orange036.jpg,Orange,1,orange_05
+1,orange076.jpg,Orange,1,orange_05
+1,orange037.jpg,Orange,1,orange_05
+1,orange077.jpg,Orange,1,orange_05
+1,orange038.jpg,Orange,1,orange_05
+1,orange078.jpg,Orange,1,orange_05
+1,orange039.jpg,Orange,1,orange_05
+1,orange079.jpg,Orange,1,orange_05
+1,orange040.jpg,Orange,1,orange_05
+1,orange080.jpg,Orange,1,orange_05
+1,soybean075.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean160.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean076.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean161.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean077.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean162.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean078.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean163.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean079.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean164.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean080.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean165.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean081.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean166.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean082.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean167.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean083.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean168.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean084.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean169.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean085.jpg,Soybean,2,"soybean_07, soybean_08"
+1,soybean170.jpg,Soybean,2,"soybean_07, soybean_08"
+1,tomato001.jpg,Tomato,1,tomato_01
+1,tomato002.jpg,Tomato,1,tomato_01
+1,tomato003.jpg,Tomato,1,tomato_01
+1,tomato004.jpg,Tomato,1,tomato_01
+1,tomato005.jpg,Tomato,1,tomato_02
+1,tomato006.jpg,Tomato,1,tomato_02
+1,tomato007.jpg,Tomato,1,tomato_02
+1,tomato008.jpg,Tomato,1,tomato_02
+1,tomato009.jpg,Tomato,1,tomato_03
+1,tomato010.jpg,Tomato,1,tomato_03
+1,tomato011.jpg,Tomato,1,tomato_03
+1,tomato012.jpg,Tomato,1,tomato_03
+1,tomato013.jpg,Tomato,3,"tomato_01, tomato_02, tomato_03"
+1,tomato014.jpg,Tomato,3,"tomato_01, tomato_02, tomato_03"
+1,tomato015.jpg,Tomato,3,"tomato_01, tomato_02, tomato_03"
+1,tomato016.jpg,Tomato,3,"tomato_01, tomato_02, tomato_03"
+2,tomato017.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,tomato044.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,tomato018.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,tomato045.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,tomato019.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,tomato046.jpg,Tomato,4,"tomato_04, tomato_05, tomato_06, tomato_07"
+2,bean061.jpg,Bean,2,"bean_10, bean_09"
+2,bell pepper005.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper017.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper006.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper018.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper007.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper019.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper008.jpg,Bell Pepper,1,bell_pepper_02
+2,bell pepper020.jpg,Bell Pepper,1,bell_pepper_02
+2,coffee001.jpg,Coffee,1,coffee_01
+2,coffee035.jpg,Coffee,1,coffee_01
+2,coffee002.jpg,Coffee,1,coffee_01
+2,coffee036.jpg,Coffee,1,coffee_01
+2,coffee003.jpg,Coffee,1,coffee_01
+2,coffee037.jpg,Coffee,1,coffee_01
+2,coffee004.jpg,Coffee,1,coffee_01
+2,coffee038.jpg,Coffee,1,coffee_01
+2,coffee005.jpg,Coffee,1,coffee_01
+2,coffee039.jpg,Coffee,1,coffee_01
+2,coffee006.jpg,Coffee,1,coffee_01
+2,coffee040.jpg,Coffee,1,coffee_01
+2,coffee090.jpg,Coffee,1,coffee_10
+2,coffee135.jpg,Coffee,1,coffee_10
+2,coffee091.jpg,Coffee,1,coffee_10
+2,coffee136.jpg,Coffee,1,coffee_10
+2,coffee092.jpg,Coffee,1,coffee_10
+2,coffee137.jpg,Coffee,1,coffee_10
+2,coffee093.jpg,Coffee,1,coffee_10
+2,coffee138.jpg,Coffee,1,coffee_10
+2,coffee094.jpg,Coffee,1,coffee_10
+2,coffee139.jpg,Coffee,1,coffee_10
+2,coffee095.jpg,Coffee,1,coffee_10
+2,coffee140.jpg,Coffee,1,coffee_10
+2,coffee096.jpg,Coffee,1,coffee_10
+2,coffee141.jpg,Coffee,1,coffee_10
+2,coffee097.jpg,Coffee,1,coffee_10
+2,coffee142.jpg,Coffee,1,coffee_10
+2,coffee099.jpg,Coffee,1,coffee_10
+2,coffee143.jpg,Coffee,1,coffee_10
+2,coffee103.jpg,Coffee,1,coffee_10
+2,coffee144.jpg,Coffee,1,coffee_10
+2,coffee104.jpg,Coffee,1,coffee_10
+2,coffee145.jpg,Coffee,1,coffee_10
+2,coffee105.jpg,Coffee,1,coffee_10
+2,coffee146.jpg,Coffee,1,coffee_10
+2,corn056.jpg,Corn,1,corn_28
+2,corn155.jpg,Corn,1,corn_28
+2,corn057.jpg,Corn,1,corn_28
+2,corn156.jpg,Corn,1,corn_28
+2,corn058.jpg,Corn,1,corn_28
+2,corn157.jpg,Corn,1,corn_28
+2,corn059.jpg,Corn,1,corn_28
+2,corn158.jpg,Corn,1,corn_28
+2,corn068.jpg,Corn,1,corn_14
+2,corn167.jpg,Corn,1,corn_14
+2,corn069.jpg,Corn,1,corn_14
+2,corn168.jpg,Corn,1,corn_14
+2,corn070.jpg,Corn,1,corn_14
+2,corn169.jpg,Corn,1,corn_14
+2,corn071.jpg,Corn,1,corn_14
+2,corn170.jpg,Corn,1,corn_14
+2,corn100.jpg,Corn,1,corn_22
+2,corn199.jpg,Corn,1,corn_22
+2,corn101.jpg,Corn,1,corn_22
+2,corn200.jpg,Corn,1,corn_22
+2,corn102.jpg,Corn,1,corn_22
+2,corn201.jpg,Corn,1,corn_22
+2,corn103.jpg,Corn,1,corn_22
+2,corn202.jpg,Corn,1,corn_22
+2,eucalyptus050.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus127.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus051.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus128.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus052.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus129.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus053.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus130.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus054.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus131.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus055.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus132.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus056.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus133.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus057.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus134.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus058.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus135.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus059.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus136.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus060.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus137.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus061.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus138.jpg,Eucalyptus,1,eucalyptus_22
+2,eucalyptus021.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus102.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus022.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus103.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus023.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus104.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus024.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus105.jpg,Eucalyptus,1,eucalyptus_05
+2,eucalyptus033.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus114.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus034.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus115.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus035.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus116.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus036.jpg,Eucalyptus,1,eucalyptus_08
+2,eucalyptus117.jpg,Eucalyptus,1,eucalyptus_08
+2,guava007.jpg,Guava,1,guava_03
+2,guava018.jpg,Guava,1,guava_03
+2,guava008.jpg,Guava,1,guava_03
+2,guava019.jpg,Guava,1,guava_03
+2,guava009.jpg,Guava,1,guava_03
+2,guava020.jpg,Guava,1,guava_03
+2,guava010.jpg,Guava,1,guava_03
+2,guava021.jpg,Guava,1,guava_03
+2,guava011.jpg,Guava,1,guava_03
+2,guava022.jpg,Guava,1,guava_03
+2,guava012.jpg,Guava,1,guava_03
+2,guava023.jpg,Guava,1,guava_03
+2,orange005.jpg,Orange,1,orange_16
+2,orange045.jpg,Orange,1,orange_16
+2,orange006.jpg,Orange,1,orange_16
+2,orange046.jpg,Orange,1,orange_16
+2,orange007.jpg,Orange,1,orange_16
+2,orange047.jpg,Orange,1,orange_16
+2,orange008.jpg,Orange,1,orange_16
+2,orange048.jpg,Orange,1,orange_16
+2,orange009.jpg,Orange,1,orange_16
+2,orange049.jpg,Orange,1,orange_16
+2,orange010.jpg,Orange,1,orange_16
+2,orange050.jpg,Orange,1,orange_16
+2,orange011.jpg,Orange,1,orange_16
+2,orange051.jpg,Orange,1,orange_16
+2,orange012.jpg,Orange,1,orange_16
+2,orange052.jpg,Orange,1,orange_16
+2,orange013.jpg,Orange,1,orange_16
+2,orange053.jpg,Orange,1,orange_16
+2,orange014.jpg,Orange,1,orange_16
+2,orange054.jpg,Orange,1,orange_16
+2,orange015.jpg,Orange,1,orange_16
+2,orange055.jpg,Orange,1,orange_16
+2,orange016.jpg,Orange,1,orange_16
+2,orange056.jpg,Orange,1,orange_16
+2,pumpkin001.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin013.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin002.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin003.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin014.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin004.jpg,Pumpkin,1,pumpkin_1
+2,pumpkin015.jpg,Pumpkin,1,pumpkin_1
+2,soybean009.jpg,Soybean,1,soybean_01
+2,soybean094.jpg,Soybean,1,soybean_01
+2,soybean010.jpg,Soybean,1,soybean_01
+2,soybean095.jpg,Soybean,1,soybean_01
+2,soybean011.jpg,Soybean,1,soybean_01
+2,soybean096.jpg,Soybean,1,soybean_01
+2,soybean012.jpg,Soybean,1,soybean_01
+2,soybean097.jpg,Soybean,1,soybean_01
+2,soybean013.jpg,Soybean,1,soybean_01
+2,soybean098.jpg,Soybean,1,soybean_01
+2,soybean014.jpg,Soybean,1,soybean_01
+2,soybean099.jpg,Soybean,1,soybean_01
+2,soybean015.jpg,Soybean,1,soybean_01
+2,soybean100.jpg,Soybean,1,soybean_01
+2,soybean016.jpg,Soybean,1,soybean_01
+2,soybean101.jpg,Soybean,1,soybean_01
+2,soybean017.jpg,Soybean,1,soybean_01
+2,soybean102.jpg,Soybean,1,soybean_01
+2,soybean018.jpg,Soybean,1,soybean_01
+2,soybean103.jpg,Soybean,1,soybean_01
+2,soybean019.jpg,Soybean,1,soybean_01
+2,soybean104.jpg,Soybean,1,soybean_01
+2,soybean020.jpg,Soybean,1,soybean_02
+2,soybean105.jpg,Soybean,1,soybean_02
+2,soybean021.jpg,Soybean,1,soybean_02
+2,soybean106.jpg,Soybean,1,soybean_02
+2,soybean022.jpg,Soybean,1,soybean_02
+2,soybean107.jpg,Soybean,1,soybean_02
+2,soybean023.jpg,Soybean,1,soybean_02
+2,soybean108.jpg,Soybean,1,soybean_02
+2,soybean024.jpg,Soybean,1,soybean_02
+2,soybean109.jpg,Soybean,1,soybean_02
+2,soybean025.jpg,Soybean,1,soybean_02
+2,soybean110.jpg,Soybean,1,soybean_02
+2,soybean026.jpg,Soybean,1,soybean_02
+2,soybean111.jpg,Soybean,1,soybean_02
+2,soybean027.jpg,Soybean,1,soybean_02
+2,soybean112.jpg,Soybean,1,soybean_02
+2,soybean028.jpg,Soybean,1,soybean_02
+2,soybean113.jpg,Soybean,1,soybean_02
+2,soybean029.jpg,Soybean,1,soybean_02
+2,soybean114.jpg,Soybean,1,soybean_02
+2,soybean030.jpg,Soybean,1,soybean_02
+2,soybean115.jpg,Soybean,1,soybean_02
+2,tomato020.jpg,Tomato,1,tomato_04
+2,tomato047.jpg,Tomato,1,tomato_04
+2,tomato021.jpg,Tomato,1,tomato_04
+2,tomato048.jpg,Tomato,1,tomato_04
+2,tomato022.jpg,Tomato,1,tomato_04
+2,tomato049.jpg,Tomato,1,tomato_04
+2,tomato023.jpg,Tomato,1,tomato_04
+2,tomato050.jpg,Tomato,1,tomato_04
+2,tomato024.jpg,Tomato,1,tomato_04
+2,tomato051.jpg,Tomato,1,tomato_04
+2,tomato025.jpg,Tomato,1,tomato_04
+2,tomato052.jpg,Tomato,1,tomato_04
+2,tomato026.jpg,Tomato,1,tomato_04
+2,tomato053.jpg,Tomato,1,tomato_04
+2,tomato027.jpg,Tomato,1,tomato_04
+2,tomato054.jpg,Tomato,1,tomato_04
+2,tomato028.jpg,Tomato,1,tomato_04
+2,tomato055.jpg,Tomato,1,tomato_04
+2,tomato029.jpg,Tomato,1,tomato_04
+2,tomato056.jpg,Tomato,1,tomato_04
+2,tomato030.jpg,Tomato,1,tomato_04
+2,tomato057.jpg,Tomato,1,tomato_04
+2,tomato031.jpg,Tomato,1,tomato_04
+2,tomato058.jpg,Tomato,1,tomato_04
+2,tomato032.jpg,Tomato,1,tomato_05
+2,tomato059.jpg,Tomato,1,tomato_05
+2,tomato033.jpg,Tomato,1,tomato_05
+2,tomato060.jpg,Tomato,1,tomato_05
+2,tomato034.jpg,Tomato,1,tomato_05
+2,tomato061.jpg,Tomato,1,tomato_05
+2,tomato035.jpg,Tomato,1,tomato_05
+2,tomato062.jpg,Tomato,1,tomato_05
+2,tomato036.jpg,Tomato,1,tomato_05
+2,tomato063.jpg,Tomato,1,tomato_05
+2,tomato037.jpg,Tomato,1,tomato_05
+2,tomato064.jpg,Tomato,1,tomato_05
+2,tomato038.jpg,Tomato,1,tomato_05
+2,tomato065.jpg,Tomato,1,tomato_05
+2,tomato039.jpg,Tomato,1,tomato_05
+2,tomato066.jpg,Tomato,1,tomato_05
+2,tomato040.jpg,Tomato,1,tomato_05
+2,tomato067.jpg,Tomato,1,tomato_05
+2,tomato041.jpg,Tomato,1,tomato_05
+2,tomato068.jpg,Tomato,1,tomato_05
+2,tomato042.jpg,Tomato,1,tomato_05
+2,tomato069.jpg,Tomato,1,tomato_05
+2,tomato043.jpg,Tomato,1,tomato_05
+2,tomato070.jpg,Tomato,1,tomato_05
+3,bean001.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean029.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean002.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean030.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean003.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean031.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean004.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean032.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean005.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean033.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean006.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean034.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean007.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean035.jpg,Bean,8,"bean_01, bean_02, bean_03, bean_04, bean_05, bean_06, bean_07, bean_08, bean_09, bean_10, bean_11, bean_12, bean_13, bean_14, bean_15, bean_16, bean_17, bean_18"
+3,bean062.jpg,Bean,5,"bean_11, bean_12, bean_13, bean_14, bean_15"
+3,coffee007.jpg,Coffee,1,coffee_02
+3,coffee041.jpg,Coffee,1,coffee_02
+3,coffee008.jpg,Coffee,1,coffee_02
+3,coffee042.jpg,Coffee,1,coffee_02
+3,coffee009.jpg,Coffee,1,coffee_02
+3,coffee043.jpg,Coffee,1,coffee_02
+3,coffee010.jpg,Coffee,1,coffee_02
+3,coffee044.jpg,Coffee,1,coffee_02
+3,coffee011.jpg,Coffee,1,coffee_02
+3,coffee045.jpg,Coffee,1,coffee_02
+3,coffee012.jpg,Coffee,1,coffee_02
+3,coffee046.jpg,Coffee,1,coffee_02
+3,coffee013.jpg,Coffee,1,coffee_03
+3,coffee047.jpg,Coffee,1,coffee_03
+3,coffee014.jpg,Coffee,1,coffee_03
+3,coffee048.jpg,Coffee,1,coffee_03
+3,coffee015.jpg,Coffee,1,coffee_03
+3,coffee049.jpg,Coffee,1,coffee_03
+3,coffee016.jpg,Coffee,1,coffee_03
+3,coffee050.jpg,Coffee,1,coffee_03
+3,coffee017.jpg,Coffee,1,coffee_03
+3,coffee051.jpg,Coffee,1,coffee_03
+3,coffee018.jpg,Coffee,1,coffee_03
+3,coffee052.jpg,Coffee,1,coffee_03
+3,castor bean001.jpg,Castor Bean,1,castor_bean_01
+3,castor bean011.jpg,Castor Bean,1,castor_bean_01
+3,castor bean002.jpg,Castor Bean,1,castor_bean_01
+3,castor bean012.jpg,Castor Bean,1,castor_bean_01
+3,castor bean003.jpg,Castor Bean,1,castor_bean_01
+3,castor bean013.jpg,Castor Bean,1,castor_bean_01
+3,castor bean004.jpg,Castor Bean,1,castor_bean_01
+3,castor bean014.jpg,Castor Bean,1,castor_bean_01
+3,castor bean009.jpg,Castor Bean,2,"castor_bean_01, castor_bean_02"
+3,castor bean019.jpg,Castor Bean,2,"castor_bean_01, castor_bean_02"
+3,castor bean010.jpg,Castor Bean,2,"castor_bean_01, castor_bean_02"
+3,castor bean020.jpg,Castor Bean,2,"castor_bean_01, castor_bean_02"
+3,coffee078.jpg,Coffee,1,coffee_26
+3,coffee123.jpg,Coffee,1,coffee_26
+3,coffee079.jpg,Coffee,1,coffee_26
+3,coffee124.jpg,Coffee,1,coffee_26
+3,coffee080.jpg,Coffee,1,coffee_26
+3,coffee125.jpg,Coffee,1,coffee_26
+3,coffee081.jpg,Coffee,1,coffee_26
+3,coffee126.jpg,Coffee,1,coffee_26
+3,coffee082.jpg,Coffee,1,coffee_26
+3,coffee127.jpg,Coffee,1,coffee_26
+3,coffee083.jpg,Coffee,1,coffee_26
+3,coffee128.jpg,Coffee,1,coffee_26
+3,coffee084.jpg,Coffee,1,coffee_26
+3,coffee129.jpg,Coffee,1,coffee_26
+3,coffee085.jpg,Coffee,1,coffee_26
+3,coffee130.jpg,Coffee,1,coffee_26
+3,coffee086.jpg,Coffee,1,coffee_26
+3,coffee131.jpg,Coffee,1,coffee_26
+3,coffee087.jpg,Coffee,1,coffee_26
+3,coffee132.jpg,Coffee,1,coffee_26
+3,coffee088.jpg,Coffee,1,coffee_26
+3,coffee133.jpg,Coffee,1,coffee_26
+3,coffee089.jpg,Coffee,1,coffee_26
+3,coffee134.jpg,Coffee,1,coffee_26
+3,corn020.jpg,Corn,1,corn_01
+3,corn021.jpg,Corn,1,corn_01
+3,corn123.jpg,Corn,1,corn_01
+3,corn022.jpg,Corn,1,corn_01
+3,corn124.jpg,Corn,1,corn_01
+3,corn023.jpg,Corn,1,corn_01
+3,corn024.jpg,Corn,1,corn_01
+3,corn025.jpg,Corn,1,corn_01
+3,corn026.jpg,Corn,1,corn_01
+3,corn125.jpg,Corn,1,corn_01
+3,corn027.jpg,Corn,1,corn_01
+3,corn126.jpg,Corn,1,corn_01
+3,corn028.jpg,Corn,1,corn_01
+3,corn127.jpg,Corn,1,corn_01
+3,corn052.jpg,Corn,1,corn_27
+3,corn151.jpg,Corn,1,corn_27
+3,corn053.jpg,Corn,1,corn_27
+3,corn152.jpg,Corn,1,corn_27
+3,corn054.jpg,Corn,1,corn_27
+3,corn153.jpg,Corn,1,corn_27
+3,corn055.jpg,Corn,1,corn_27
+3,corn154.jpg,Corn,1,corn_27
+3,corn060.jpg,Corn,1,corn_29
+3,corn159.jpg,Corn,1,corn_29
+3,corn061.jpg,Corn,1,corn_29
+3,corn160.jpg,Corn,1,corn_29
+3,corn062.jpg,Corn,1,corn_29
+3,corn161.jpg,Corn,1,corn_29
+3,corn063.jpg,Corn,1,corn_29
+3,corn162.jpg,Corn,1,corn_29
+3,corn084.jpg,Corn,1,corn_18
+3,corn183.jpg,Corn,1,corn_18
+3,corn085.jpg,Corn,1,corn_18
+3,corn184.jpg,Corn,1,corn_18
+3,corn086.jpg,Corn,1,corn_18
+3,corn185.jpg,Corn,1,corn_18
+3,corn087.jpg,Corn,1,corn_18
+3,corn186.jpg,Corn,1,corn_18
+3,corn092.jpg,Corn,1,corn_20
+3,corn191.jpg,Corn,1,corn_20
+3,corn093.jpg,Corn,1,corn_20
+3,corn192.jpg,Corn,1,corn_20
+3,corn094.jpg,Corn,1,corn_20
+3,corn193.jpg,Corn,1,corn_20
+3,corn095.jpg,Corn,1,corn_20
+3,corn194.jpg,Corn,1,corn_20
+3,eucalyptus013.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus094.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus014.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus095.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus015.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus096.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus016.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus097.jpg,Eucalyptus,1,eucalyptus_03
+3,eucalyptus037.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus118.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus038.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus119.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus039.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus120.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus040.jpg,Eucalyptus,1,eucalyptus_09
+3,eucalyptus121.jpg,Eucalyptus,1,eucalyptus_09
+3,lemon001.jpg,Lemon,1,lemon_01
+3,lemon013.jpg,Lemon,1,lemon_01
+3,lemon002.jpg,Lemon,1,lemon_01
+3,lemon014.jpg,Lemon,1,lemon_01
+3,lemon003.jpg,Lemon,1,lemon_01
+3,lemon015.jpg,Lemon,1,lemon_01
+3,lemon004.jpg,Lemon,1,lemon_01
+3,lemon016.jpg,Lemon,1,lemon_01
+3,lemon005.jpg,Lemon,1,lemon_01
+3,lemon017.jpg,Lemon,1,lemon_01
+3,lemon006.jpg,Lemon,1,lemon_01
+3,lemon018.jpg,Lemon,1,lemon_01
+3,pumpkin005.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin016.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin006.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin017.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin007.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin018.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin008.jpg,Pumpkin,1,pumpkin_2
+3,pumpkin019.jpg,Pumpkin,1,pumpkin_2
+3,soybean042.jpg,Soybean,1,soybean_04
+3,soybean127.jpg,Soybean,1,soybean_04
+3,soybean043.jpg,Soybean,1,soybean_04
+3,soybean128.jpg,Soybean,1,soybean_04
+3,soybean044.jpg,Soybean,1,soybean_04
+3,soybean129.jpg,Soybean,1,soybean_04
+3,soybean045.jpg,Soybean,1,soybean_04
+3,soybean130.jpg,Soybean,1,soybean_04
+3,soybean046.jpg,Soybean,1,soybean_04
+3,soybean131.jpg,Soybean,1,soybean_04
+3,soybean047.jpg,Soybean,1,soybean_04
+3,soybean132.jpg,Soybean,1,soybean_04
+3,soybean048.jpg,Soybean,1,soybean_04
+3,soybean133.jpg,Soybean,1,soybean_04
+3,soybean049.jpg,Soybean,1,soybean_04
+3,soybean134.jpg,Soybean,1,soybean_04
+3,soybean050.jpg,Soybean,1,soybean_04
+3,soybean135.jpg,Soybean,1,soybean_04
+3,soybean051.jpg,Soybean,1,soybean_04
+3,soybean136.jpg,Soybean,1,soybean_04
+3,soybean052.jpg,Soybean,1,soybean_04
+3,soybean137.jpg,Soybean,1,soybean_04
+3,soybean064.jpg,Soybean,1,soybean_06
+3,soybean149.jpg,Soybean,1,soybean_06
+3,soybean065.jpg,Soybean,1,soybean_06
+3,soybean150.jpg,Soybean,1,soybean_06
+3,soybean066.jpg,Soybean,1,soybean_06
+3,soybean151.jpg,Soybean,1,soybean_06
+3,soybean067.jpg,Soybean,1,soybean_06
+3,soybean152.jpg,Soybean,1,soybean_06
+3,soybean068.jpg,Soybean,1,soybean_06
+3,soybean153.jpg,Soybean,1,soybean_06
+3,soybean069.jpg,Soybean,1,soybean_06
+3,soybean154.jpg,Soybean,1,soybean_06
+3,soybean070.jpg,Soybean,1,soybean_06
+3,soybean155.jpg,Soybean,1,soybean_06
+3,soybean071.jpg,Soybean,1,soybean_06
+3,soybean156.jpg,Soybean,1,soybean_06
+3,soybean072.jpg,Soybean,1,soybean_06
+3,soybean157.jpg,Soybean,1,soybean_06
+3,soybean073.jpg,Soybean,1,soybean_06
+3,soybean158.jpg,Soybean,1,soybean_06
+3,soybean074.jpg,Soybean,1,soybean_06
+3,soybean159.jpg,Soybean,1,soybean_06
+4,eucalyptus043.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,eucalyptus124.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,eucalyptus044.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,eucalyptus125.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,eucalyptus045.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,eucalyptus126.jpg,Eucalyptus,21,"eucalyptus_11, eucalyptus_12, eucalyptus_13, eucalyptus_14, eucalyptus_15, eucalyptus_16, eucalyptus_17, eucalyptus_18, eucalyptus_19, eucalyptus_20, eucalyptus_21, eucalyptus_22, eucalyptus_23, eucalyptus_24, eucalyptus_25, eucalyptus_26, eucalyptus_27, eucalyptus_28, eucalyptus_29, eucalyptus_30, eucalyptus_31"
+4,multi-specie001.jpg,Multi Specie,6,"bean_01, bean_02, corn_1, corn_8, cotton_01, cotton_09"
+4,multi-specie008.jpg,Multi Specie,6,"bean_01, bean_02, corn_1, corn_8, cotton_01, cotton_09"
+4,multi-specie002.jpg,Multi Specie,1,bean_02
+4,multi-specie009.jpg,Multi Specie,1,bean_02
+4,multi-specie003.jpg,Multi Specie,1,bean_02
+4,multi-specie010.jpg,Multi Specie,1,bean_02
+4,multi-specie004.jpg,Multi Specie,1,bean_02
+4,multi-specie011.jpg,Multi Specie,1,bean_02
+4,multi-specie005.jpg,Multi Specie,1,bean_02
+4,multi-specie012.jpg,Multi Specie,1,bean_02
+4,multi-specie006.jpg,Multi Specie,1,bean_02
+4,multi-specie013.jpg,Multi Specie,1,bean_02
+4,multi-specie007.jpg,Multi Specie,1,bean_02
+4,multi-specie014.jpg,Multi Specie,1,bean_02
+4,bean008.jpg,Bean,1,bean_01
+4,bean036.jpg,Bean,1,bean_01
+4,bean009.jpg,Bean,1,bean_01
+4,bean037.jpg,Bean,1,bean_01
+4,bean010.jpg,Bean,1,bean_01
+4,bean038.jpg,Bean,1,bean_01
+4,bean011.jpg,Bean,1,bean_01
+4,bean039.jpg,Bean,1,bean_01
+4,bean012.jpg,Bean,1,bean_01
+4,bean040.jpg,Bean,1,bean_01
+4,bean013.jpg,Bean,1,bean_01
+4,bean041.jpg,Bean,1,bean_01
+4,bean014.jpg,Bean,1,bean_01
+4,bean042.jpg,Bean,1,bean_01
+4,bean015.jpg,Bean,1,bean_01
+4,bean043.jpg,Bean,1,bean_01
+4,bean016.jpg,Bean,1,bean_01
+4,bean044.jpg,Bean,1,bean_01
+4,bean017.jpg,Bean,1,bean_01
+4,bean045.jpg,Bean,1,bean_01
+4,bean018.jpg,Bean,1,bean_01
+4,bean046.jpg,Bean,1,bean_01
+4,bean019.jpg,Bean,1,bean_01
+4,bean047.jpg,Bean,1,bean_01
+4,bean020.jpg,Bean,1,bean_02
+4,bean048.jpg,Bean,1,bean_02
+4,bean021.jpg,Bean,1,bean_02
+4,bean049.jpg,Bean,1,bean_02
+4,bean022.jpg,Bean,1,bean_02
+4,bean050.jpg,Bean,1,bean_02
+4,bean057.jpg,Bean,2,"bean_01, bean_02"
+4,bean023.jpg,Bean,1,bean_02
+4,bean051.jpg,Bean,1,bean_02
+4,bean024.jpg,Bean,1,bean_02
+4,bean052.jpg,Bean,1,bean_02
+4,bean025.jpg,Bean,1,bean_02
+4,bean053.jpg,Bean,1,bean_02
+4,bean026.jpg,Bean,1,bean_02
+4,bean054.jpg,Bean,1,bean_02
+4,bean027.jpg,Bean,1,bean_02
+4,bean055.jpg,Bean,1,bean_02
+4,bean028.jpg,Bean,1,bean_02
+4,bean056.jpg,Bean,1,bean_02
+4,coffee062.jpg,Coffee,1,coffee_06
+4,coffee063.jpg,Coffee,1,coffee_06
+4,coffee064.jpg,Coffee,1,coffee_06
+4,coffee065.jpg,Coffee,1,coffee_06
+4,coffee066.jpg,Coffee,1,coffee_06
+4,coffee067.jpg,Coffee,1,coffee_06
+4,castor bean005.jpg,Castor Bean,1,castor_bean_02
+4,castor bean015.jpg,Castor Bean,1,castor_bean_02
+4,castor bean006.jpg,Castor Bean,1,castor_bean_02
+4,castor bean016.jpg,Castor Bean,1,castor_bean_02
+4,castor bean007.jpg,Castor Bean,1,castor_bean_02
+4,castor bean017.jpg,Castor Bean,1,castor_bean_02
+4,castor bean008.jpg,Castor Bean,1,castor_bean_02
+4,castor bean018.jpg,Castor Bean,1,castor_bean_02
+4,coffee019.jpg,Coffee,1,coffee_07
+4,coffee098.jpg,Coffee,1,coffee_07
+4,coffee020.jpg,Coffee,1,coffee_07
+4,coffee100.jpg,Coffee,1,coffee_07
+4,coffee021.jpg,Coffee,1,coffee_07
+4,coffee101.jpg,Coffee,1,coffee_07
+4,coffee022.jpg,Coffee,1,coffee_07
+4,coffee102.jpg,Coffee,1,coffee_07
+4,coffee023.jpg,Coffee,1,coffee_08
+4,coffee106.jpg,Coffee,1,coffee_08
+4,coffee024.jpg,Coffee,1,coffee_08
+4,coffee107.jpg,Coffee,1,coffee_08
+4,coffee108.jpg,Coffee,1,coffee_08
+4,coffee025.jpg,Coffee,1,coffee_08
+4,coffee109.jpg,Coffee,1,coffee_08
+4,coffee026.jpg,Coffee,1,coffee_08
+4,coffee110.jpg,Coffee,1,coffee_08
+4,coffee027.jpg,Coffee,1,coffee_09
+4,coffee111.jpg,Coffee,1,coffee_09
+4,coffee028.jpg,Coffee,1,coffee_09
+4,coffee112.jpg,Coffee,1,coffee_09
+4,coffee029.jpg,Coffee,1,coffee_09
+4,coffee113.jpg,Coffee,1,coffee_09
+4,coffee030.jpg,Coffee,1,coffee_09
+4,coffee114.jpg,Coffee,1,coffee_09
+4,coffee031.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee115.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee032.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee116.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee033.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee117.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee034.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,coffee118.jpg,Coffee,3,"coffee_07, coffee_08, coffee_09"
+4,corn029.jpg,Corn,1,corn_08
+4,corn128.jpg,Corn,1,corn_08
+4,corn030.jpg,Corn,1,corn_08
+4,corn129.jpg,Corn,1,corn_08
+4,corn031.jpg,Corn,1,corn_08
+4,corn130.jpg,Corn,1,corn_08
+4,corn032.jpg,Corn,1,corn_08
+4,corn131.jpg,Corn,1,corn_08
+4,corn033.jpg,Corn,1,corn_08
+4,corn132.jpg,Corn,1,corn_08
+4,corn034.jpg,Corn,1,corn_08
+4,corn133.jpg,Corn,1,corn_08
+4,corn035.jpg,Corn,1,corn_08
+4,corn134.jpg,Corn,1,corn_08
+4,corn064.jpg,Corn,1,corn_30
+4,corn163.jpg,Corn,1,corn_30
+4,corn065.jpg,Corn,1,corn_30
+4,corn164.jpg,Corn,1,corn_30
+4,corn066.jpg,Corn,1,corn_30
+4,corn165.jpg,Corn,1,corn_30
+4,corn067.jpg,Corn,1,corn_30
+4,corn166.jpg,Corn,1,corn_30
+4,corn072.jpg,Corn,1,corn_15
+4,corn171.jpg,Corn,1,corn_15
+4,corn073.jpg,Corn,1,corn_15
+4,corn172.jpg,Corn,1,corn_15
+4,corn074.jpg,Corn,1,corn_15
+4,corn173.jpg,Corn,1,corn_15
+4,corn075.jpg,Corn,1,corn_15
+4,corn174.jpg,Corn,1,corn_15
+4,corn080.jpg,Corn,1,corn_17
+4,corn179.jpg,Corn,1,corn_17
+4,corn081.jpg,Corn,1,corn_17
+4,corn180.jpg,Corn,1,corn_17
+4,corn082.jpg,Corn,1,corn_17
+4,corn181.jpg,Corn,1,corn_17
+4,corn083.jpg,Corn,1,corn_17
+4,corn182.jpg,Corn,1,corn_17
+4,corn088.jpg,Corn,1,corn_19
+4,corn187.jpg,Corn,1,corn_19
+4,corn089.jpg,Corn,1,corn_19
+4,corn188.jpg,Corn,1,corn_19
+4,corn090.jpg,Corn,1,corn_19
+4,corn189.jpg,Corn,1,corn_19
+4,corn091.jpg,Corn,1,corn_19
+4,corn190.jpg,Corn,1,corn_19
+4,cotton008.jpg,Cotton,1,cotton_01
+4,cotton036.jpg,Cotton,1,cotton_01
+4,cotton009.jpg,Cotton,1,cotton_01
+4,cotton037.jpg,Cotton,1,cotton_01
+4,cotton010.jpg,Cotton,1,cotton_01
+4,cotton038.jpg,Cotton,1,cotton_01
+4,cotton011.jpg,Cotton,1,cotton_01
+4,cotton039.jpg,Cotton,1,cotton_01
+4,cotton012.jpg,Cotton,1,cotton_01
+4,cotton040.jpg,Cotton,1,cotton_01
+4,cotton013.jpg,Cotton,1,cotton_01
+4,cotton041.jpg,Cotton,1,cotton_01
+4,cotton014.jpg,Cotton,1,cotton_01
+4,cotton042.jpg,Cotton,1,cotton_01
+4,cotton015.jpg,Cotton,1,cotton_01
+4,cotton043.jpg,Cotton,1,cotton_01
+4,cotton016.jpg,Cotton,1,cotton_01
+4,cotton044.jpg,Cotton,1,cotton_01
+4,cotton017.jpg,Cotton,1,cotton_01
+4,cotton045.jpg,Cotton,1,cotton_01
+4,cotton018.jpg,Cotton,1,cotton_01
+4,cotton046.jpg,Cotton,1,cotton_01
+4,cotton019.jpg,Cotton,1,cotton_01
+4,cotton047.jpg,Cotton,1,cotton_01
+4,cotton020.jpg,Cotton,1,cotton_09
+4,cotton048.jpg,Cotton,1,cotton_09
+4,cotton021.jpg,Cotton,1,cotton_09
+4,cotton049.jpg,Cotton,1,cotton_09
+4,cotton022.jpg,Cotton,1,cotton_09
+4,cotton050.jpg,Cotton,1,cotton_09
+4,cotton023.jpg,Cotton,1,cotton_09
+4,cotton051.jpg,Cotton,1,cotton_09
+4,cotton024.jpg,Cotton,1,cotton_09
+4,cotton052.jpg,Cotton,1,cotton_09
+4,cotton025.jpg,Cotton,1,cotton_09
+4,cotton053.jpg,Cotton,1,cotton_09
+4,cotton026.jpg,Cotton,1,cotton_09
+4,cotton054.jpg,Cotton,1,cotton_09
+4,cotton027.jpg,Cotton,1,cotton_09
+4,cotton055.jpg,Cotton,1,cotton_09
+4,cotton028.jpg,Cotton,1,cotton_09
+4,cotton056.jpg,Cotton,1,cotton_09
+4,cotton057.jpg,Cotton,3,"cotton_01, cotton_02, cotton_03"
+4,cotton058.jpg,Cotton,3,"cotton_01, cotton_02, cotton_03"
+4,cotton059.jpg,Cotton,3,"cotton_01, cotton_02, cotton_03"
+4,cotton060.jpg,Cotton,1,cotton_09
+4,cotton061.jpg,Cotton,3,"cotton_01, cotton_02, cotton_03"
+4,eucalyptus009.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus090.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus010.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus091.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus011.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus092.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus012.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus093.jpg,Eucalyptus,1,eucalyptus_02
+4,eucalyptus041.jpg,Eucalyptus,10,"eucalyptus_01, eucalyptus_02, eucalyptus_03, eucalyptus_04, eucalyptus_05, eucalyptus_06, eucalyptus_07, eucalyptus_08, eucalyptus_09, eucalyptus_10"
+4,eucalyptus122.jpg,Eucalyptus,10,"eucalyptus_01, eucalyptus_02, eucalyptus_03, eucalyptus_04, eucalyptus_05, eucalyptus_06, eucalyptus_07, eucalyptus_08, eucalyptus_09, eucalyptus_10"
+4,eucalyptus042.jpg,Eucalyptus,10,"eucalyptus_01, eucalyptus_02, eucalyptus_03, eucalyptus_04, eucalyptus_05, eucalyptus_06, eucalyptus_07, eucalyptus_08, eucalyptus_09, eucalyptus_10"
+4,eucalyptus123.jpg,Eucalyptus,10,"eucalyptus_01, eucalyptus_02, eucalyptus_03, eucalyptus_04, eucalyptus_05, eucalyptus_06, eucalyptus_07, eucalyptus_08, eucalyptus_09, eucalyptus_10"
+4,lemon007.jpg,Lemon,1,lemon_02
+4,lemon019.jpg,Lemon,1,lemon_02
+4,lemon008.jpg,Lemon,1,lemon_02
+4,lemon020.jpg,Lemon,1,lemon_02
+4,lemon009.jpg,Lemon,1,lemon_02
+4,lemon021.jpg,Lemon,1,lemon_02
+4,lemon010.jpg,Lemon,1,lemon_02
+4,lemon022.jpg,Lemon,1,lemon_02
+4,lemon011.jpg,Lemon,1,lemon_02
+4,lemon023.jpg,Lemon,1,lemon_02
+4,lemon012.jpg,Lemon,1,lemon_02
+4,lemon024.jpg,Lemon,1,lemon_02
+4,orange017.jpg,Orange,1,orange_03
+4,orange057.jpg,Orange,1,orange_03
+4,orange018.jpg,Orange,1,orange_03
+4,orange058.jpg,Orange,1,orange_03
+4,orange019.jpg,Orange,1,orange_03
+4,orange059.jpg,Orange,1,orange_03
+4,orange020.jpg,Orange,1,orange_03
+4,orange060.jpg,Orange,1,orange_03
+4,orange021.jpg,Orange,1,orange_03
+4,orange061.jpg,Orange,1,orange_03
+4,orange022.jpg,Orange,1,orange_03
+4,orange062.jpg,Orange,1,orange_03
+4,orange023.jpg,Orange,1,orange_03
+4,orange063.jpg,Orange,1,orange_03
+4,orange024.jpg,Orange,1,orange_03
+4,orange064.jpg,Orange,1,orange_03
+4,orange025.jpg,Orange,1,orange_03
+4,orange065.jpg,Orange,1,orange_03
+4,orange026.jpg,Orange,1,orange_03
+4,orange066.jpg,Orange,1,orange_03
+4,orange027.jpg,Orange,1,orange_03
+4,orange067.jpg,Orange,1,orange_03
+4,orange028.jpg,Orange,1,orange_03
+4,orange068.jpg,Orange,1,orange_03
+4,soybean053.jpg,Soybean,1,soybean_05
+4,soybean138.jpg,Soybean,1,soybean_05
+4,soybean054.jpg,Soybean,1,soybean_05
+4,soybean139.jpg,Soybean,1,soybean_05
+4,soybean055.jpg,Soybean,1,soybean_05
+4,soybean140.jpg,Soybean,1,soybean_05
+4,soybean056.jpg,Soybean,1,soybean_05
+4,soybean141.jpg,Soybean,1,soybean_05
+4,soybean057.jpg,Soybean,1,soybean_05
+4,soybean142.jpg,Soybean,1,soybean_05
+4,soybean058.jpg,Soybean,1,soybean_05
+4,soybean143.jpg,Soybean,1,soybean_05
+4,soybean059.jpg,Soybean,1,soybean_05
+4,soybean144.jpg,Soybean,1,soybean_05
+4,soybean060.jpg,Soybean,1,soybean_05
+4,soybean145.jpg,Soybean,1,soybean_05
+4,soybean061.jpg,Soybean,1,soybean_05
+4,soybean146.jpg,Soybean,1,soybean_05
+4,soybean062.jpg,Soybean,1,soybean_05
+4,soybean147.jpg,Soybean,1,soybean_05
+4,soybean063.jpg,Soybean,1,soybean_05
+4,soybean148.jpg,Soybean,1,soybean_05
+5,corn001.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn104.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn002.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn105.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn003.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn106.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn004.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn107.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn005.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn108.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn006.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,corn109.jpg,Corn,4,"corn_5, corn_10, corn_11, corn_12"
+5,soybean001.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean086.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean002.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean087.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean003.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean088.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean004.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,soybean089.jpg,Soybean,8,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08"
+5,coffee074.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee119.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee075.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee120.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee076.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee121.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee077.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,coffee122.jpg,Coffee,17,"coffee_10, coffee_11, coffee_12, coffee_13, coffee_14, coffee_15, coffee_16, coffee_17, coffee_18, coffee_19, coffee_20, coffee_21, coffee_22, coffee_23, coffee_24, coffee_25, coffee_26, coffee_27"
+5,cotton001.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton029.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton002.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton030.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton003.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton031.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton004.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton032.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton005.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton033.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton006.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton034.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton007.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,cotton035.jpg,Cotton,11,"cotton_01, cotton_02, cotton_03, cotton_04, cotton_05, cotton_06, cotton_07, cotton_08, cotton_09, cotton_10, cotton_11"
+5,orange001.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange041.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange002.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange042.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange003.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange043.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange004.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,orange044.jpg,Orange,20,"orange_01, orange_02, orange_03, orange_04, orange_05, orange_06, orange_07, orange_08, orange_09, orange_10, orange_11, orange_12, orange_13, orange_14, orange_15, orange_16, orange_17, orange_18, orange_19, orange_20"
+5,soybean005.jpg,Soybean,28,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_18, soybean_19, soybean_20, soybean_21, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean090.jpg,Soybean,30,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_17, soybean_18, soybean_19, soybean_20, soybean_21, soybean_22, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean006.jpg,Soybean,30,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_17, soybean_18, soybean_19, soybean_20, soybean_21, soybean_22, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean091.jpg,Soybean,28,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_18, soybean_19, soybean_20, soybean_21, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean007.jpg,Soybean,28,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_18, soybean_19, soybean_20, soybean_21, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean092.jpg,Soybean,28,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_18, soybean_19, soybean_20, soybean_21, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean008.jpg,Soybean,30,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_17, soybean_18, soybean_19, soybean_20, soybean_21, soybean_22, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,soybean093.jpg,Soybean,30,"soybean_01, soybean_02, soybean_03, soybean_04, soybean_05, soybean_06, soybean_07, soybean_08, soybean_09, soybean_10, soybean_11, soybean_12, soybean_13, soybean_14, soybean_15, soybean_16, soybean_17, soybean_18, soybean_19, soybean_20, soybean_21, soybean_22, soybean_23, soybean_24, soybean_25, soybean_26, soybean_27, soybean_28, soybean_29, soybean_30"
+5,bean058.jpg,Bean,1,bean_03
+5,bean060.jpg,Bean,2,"bean_05, bean_06"
+5,bean063.jpg,Bean,3,"bean_16, bean_17, bean_18"
+5,corn036.jpg,Corn,1,corn_23
+5,corn135.jpg,Corn,1,corn_23
+5,corn037.jpg,Corn,1,corn_23
+5,corn136.jpg,Corn,1,corn_23
+5,corn038.jpg,Corn,1,corn_23
+5,corn137.jpg,Corn,1,corn_23
+5,corn039.jpg,Corn,1,corn_23
+5,corn138.jpg,Corn,1,corn_23
+5,corn044.jpg,Corn,1,corn_25
+5,corn143.jpg,Corn,1,corn_25
+5,corn045.jpg,Corn,1,corn_25
+5,corn144.jpg,Corn,1,corn_25
+5,corn046.jpg,Corn,1,corn_25
+5,corn145.jpg,Corn,1,corn_25
+5,corn047.jpg,Corn,1,corn_25
+5,corn146.jpg,Corn,1,corn_25
+5,corn048.jpg,Corn,1,corn_26
+5,corn147.jpg,Corn,1,corn_26
+5,corn049.jpg,Corn,1,corn_26
+5,corn148.jpg,Corn,1,corn_26
+5,corn050.jpg,Corn,1,corn_26
+5,corn149.jpg,Corn,1,corn_26
+5,corn051.jpg,Corn,1,corn_26
+5,corn150.jpg,Corn,1,corn_26
+5,corn076.jpg,Corn,1,corn_16
+5,corn175.jpg,Corn,1,corn_16
+5,corn077.jpg,Corn,1,corn_16
+5,corn176.jpg,Corn,1,corn_16
+5,corn078.jpg,Corn,1,corn_16
+5,corn177.jpg,Corn,1,corn_16
+5,corn079.jpg,Corn,1,corn_16
+5,corn178.jpg,Corn,1,corn_16
+5,eucalyptus062.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus139.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus063.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus140.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus064.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus141.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus065.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus142.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus066.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus143.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus067.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus144.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus068.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus145.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus069.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus146.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus070.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus147.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus071.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus148.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus072.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus149.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus073.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus150.jpg,Eucalyptus,1,eucalyptus_25
+5,eucalyptus017.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus098.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus018.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus099.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus019.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus100.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus020.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus101.jpg,Eucalyptus,1,eucalyptus_04
+5,eucalyptus025.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus106.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus026.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus107.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus027.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus108.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus028.jpg,Eucalyptus,1,eucalyptus_06
+5,eucalyptus109.jpg,Eucalyptus,1,eucalyptus_06
+5,guava024.jpg,Guava,1,guava_01
+5,guava025.jpg,Guava,1,guava_01
+5,guava026.jpg,Guava,1,guava_01
+5,guava027.jpg,Guava,1,guava_01
+5,guava028.jpg,Guava,1,guava_01
+5,guava029.jpg,Guava,1,guava_01
+5,pumpkin009.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin020.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin010.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin021.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin011.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin022.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin012.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,pumpkin023.jpg,Pumpkin,2,"pumpkin_01, pumpkin_02"
+5,soybean031.jpg,Soybean,1,soybean_03
+5,soybean116.jpg,Soybean,1,soybean_03
+5,soybean032.jpg,Soybean,1,soybean_03
+5,soybean117.jpg,Soybean,1,soybean_03
+5,soybean033.jpg,Soybean,1,soybean_03
+5,soybean118.jpg,Soybean,1,soybean_03
+5,soybean034.jpg,Soybean,1,soybean_03
+5,soybean119.jpg,Soybean,1,soybean_03
+5,soybean035.jpg,Soybean,1,soybean_03
+5,soybean120.jpg,Soybean,1,soybean_03
+5,soybean036.jpg,Soybean,1,soybean_03
+5,soybean121.jpg,Soybean,1,soybean_03
+5,soybean037.jpg,Soybean,1,soybean_03
+5,soybean122.jpg,Soybean,1,soybean_03
+5,soybean038.jpg,Soybean,1,soybean_03
+5,soybean123.jpg,Soybean,1,soybean_03
+5,soybean039.jpg,Soybean,1,soybean_03
+5,soybean124.jpg,Soybean,1,soybean_03
+5,soybean040.jpg,Soybean,1,soybean_03
+5,soybean125.jpg,Soybean,1,soybean_03
+5,soybean041.jpg,Soybean,1,soybean_03
+5,soybean126.jpg,Soybean,1,soybean_03

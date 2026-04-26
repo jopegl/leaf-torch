@@ -10,6 +10,8 @@ import pandas as pd
 import cv2
 import xml.etree.ElementTree as ET
 import torchvision.transforms as transforms
+from collections import defaultdict
+import csv
 
 
 def get_base_dir():
@@ -20,286 +22,69 @@ def get_base_dir():
 
 class MultiLeafDataset(Dataset):
     def __init__(self, split, fold,
-                 img_dir="resized_multileaf/images",
-                 mask_dir="resized_multileaf/masks",
-                 xml_dir='resized_multileaf/xmls',
-                 fold_path="Folds",
+                 dataset_root="multileaf_dataset",
+                 fold_csv="folds.csv",
                  img_size=512,
                  val_mode=True,
-                 num_classes = 2):
+                 num_classes=2):
 
         if split not in ['train', 'val', 'test']:
-            raise ValueError("O parâmetro 'split' deve ser 'train', 'val' ou 'test'.")
+            raise ValueError("split deve ser train, val ou test")
 
         self.split = split
         self.fold = fold
         self.img_size = img_size
-        self.img_paths = []
-        self.mask_paths = []
-        self.xml_paths = []
-        self.imgs_size = {}
-        self.marker_sides = {}
-        self.leaf_target_areas = {}
-        self.val_fold = -1
         self.NUM_CLASSES = num_classes
 
-        self.base_dir = get_base_dir()
-
-        self.img_dir = os.path.join(self.base_dir, img_dir)
-        self.mask_dir = os.path.join(self.base_dir, mask_dir)
-        self.xml_dir = os.path.join(self.base_dir, xml_dir)
-        self.fold_path = os.path.join(self.base_dir, fold_path)
-
-        self.complete_spreadsheet = os.path.join(
-            self.base_dir, 'final_dataset_spreadsheet.csv'
-        )
-
-        self.original_img_path = os.path.join(
-            self.base_dir, 'dataset_consolidado/images'
-        )
-
-        self.comp_df = pd.read_csv(self.complete_spreadsheet)
-
-        for filename in os.listdir(self.original_img_path):
-            path = os.path.join(self.original_img_path, filename)
-            img = cv2.imread(path)
-
-            if img is None:
-                continue
-
-            orig_h, orig_w = img.shape[:2]
-            self.imgs_size[filename] = (orig_w, orig_h)
-
-        if val_mode:
-            if self.fold == 5:
-                self.val_fold = 1
-            else:
-                self.val_fold = self.fold + 1
-
-        if split == 'test':
-            self._save_imgs(self.fold)
-        elif split == 'val':
-            self._save_imgs(self.val_fold)
-        else:
-            folds_to_complete = [f for f in range(1, 6) if f not in (self.fold, self.val_fold)]
-            for f in folds_to_complete:
-                self._save_imgs(f)
-
-        unique_data = {}
-        for img_path, mask_path, xml_path in zip(self.img_paths, self.mask_paths, self.xml_paths):
-            filename = os.path.basename(img_path)
-            unique_data[filename] = (img_path, mask_path, xml_path)
-
         self.img_paths = []
-        self.mask_paths = []
-        self.xml_paths = []
 
-        for img_path, mask_path, xml_path in unique_data.values():
-            self.img_paths.append(img_path)
-            self.mask_paths.append(mask_path)
-            self.xml_paths.append(xml_path)
+        # monta folds
+        folds = self._build_fold_image_dict(fold_csv, dataset_root)
 
-        for path in self.xml_paths:
-            tree = ET.parse(path)
-            root = tree.getroot()
+        if self.split == 'train':
+            self.img_paths = folds[self.fold]
 
-            pattern_side = float(root.find("pattern-side").text)
-            self.marker_sides[os.path.basename(path)] = pattern_side
+        elif self.split == 'val':
+            self.val_fold = 5 if self.fold != 5 else 1
+            self.img_paths = folds[self.val_fold]
 
-            invalid_area_found = False
-            total_area = 0.0
+        else:
+            self.img_paths = []
+            for f in range(1, 6):
+                if f != self.fold and f != getattr(self, "val_fold", -1):
+                    self.img_paths += folds[f]
 
-            for leaf in root.findall("objects/leaf"):
-                area_tag = leaf.find("dimensions/area")
-
-                if area_tag is not None and area_tag.text is not None:
-                    area_text = area_tag.text.strip()
-
-                    try:
-                        total_area += float(area_text)
-                    except ValueError:
-                        print(f"[WARNING] Invalid area in {os.path.basename(path)}: {area_text}")
-                        invalid_area_found = True
-                        break
-                else:
-                    invalid_area_found = True
-                    break
-
-            if invalid_area_found:
-                self.leaf_target_areas[os.path.basename(path)] = -1.0
-            else:
-                self.leaf_target_areas[os.path.basename(path)] = total_area
-
-        print('=========================================')
-        print(f'Base dir: {self.base_dir}')
-        print(f'{self.split} - {len(self.img_paths)}')
-        print(f'Unique {self.split} - {len(set([os.path.basename(p) for p in self.img_paths]))}')
-        print('=========================================')
 
     def __len__(self):
         return len(self.img_paths)
 
-    import os
-import glob
-import re
-import torch
-import numpy as np
-from PIL import Image
-from torch.utils.data import Dataset
-import torchvision.transforms.functional as TF
-import pandas as pd
-import cv2
-import xml.etree.ElementTree as ET
-import torchvision.transforms as transforms
 
-
-def get_base_dir():
-    if os.path.exists('/content/drive'):
-        return "/content/drive/MyDrive/all_multileaf_datasets"
-    return "."
-
-
-class MultiLeafDataset(Dataset):
-    def __init__(self, split, fold,
-                 img_dir="resized_multileaf/images",
-                 mask_dir="resized_multileaf/masks",
-                 xml_dir='resized_multileaf/xmls',
-                 fold_path="Folds",
-                 img_size=512,
-                 val_mode=True,
-                 num_classes = 2):
-
-        if split not in ['train', 'val', 'test']:
-            raise ValueError("O parâmetro 'split' deve ser 'train', 'val' ou 'test'.")
-
-        self.split = split
-        self.fold = fold
-        self.img_size = img_size
-        self.img_paths = []
-        self.mask_paths = []
-        self.xml_paths = []
-        self.imgs_size = {}
-        self.marker_sides = {}
-        self.leaf_target_areas = {}
-        self.val_fold = -1
-        self.NUM_CLASSES = num_classes
-
-        self.base_dir = get_base_dir()
-
-        self.img_dir = os.path.join(self.base_dir, img_dir)
-        self.mask_dir = os.path.join(self.base_dir, mask_dir)
-        self.xml_dir = os.path.join(self.base_dir, xml_dir)
-        self.fold_path = os.path.join(self.base_dir, fold_path)
-
-        self.complete_spreadsheet = os.path.join(
-            self.base_dir, 'final_dataset_spreadsheet.csv'
+    def _get_mask_path(self, img_path):
+        # multileaf_dataset/Bean/images/x.jpg
+        # -> multileaf_dataset/Bean/masks/x.png
+        return (
+            img_path
+            .replace(os.sep + "images" + os.sep, os.sep + "masks" + os.sep)
+            .rsplit(".", 1)[0] + ".png"
         )
 
-        self.original_img_path = os.path.join(
-            self.base_dir, 'dataset_consolidado/images'
-        )
-
-        self.comp_df = pd.read_csv(self.complete_spreadsheet)
-
-        for filename in os.listdir(self.original_img_path):
-            path = os.path.join(self.original_img_path, filename)
-            img = cv2.imread(path)
-
-            if img is None:
-                continue
-
-            orig_h, orig_w = img.shape[:2]
-            self.imgs_size[filename] = (orig_w, orig_h)
-
-        if val_mode:
-            if self.fold == 5:
-                self.val_fold = 1
-            else:
-                self.val_fold = self.fold + 1
-
-        if split == 'test':
-            self._save_imgs(self.fold)
-        elif split == 'val':
-            self._save_imgs(self.val_fold)
-        else:
-            folds_to_complete = [f for f in range(1, 6) if f not in (self.fold, self.val_fold)]
-            for f in folds_to_complete:
-                self._save_imgs(f)
-
-        unique_data = {}
-        for img_path, mask_path, xml_path in zip(self.img_paths, self.mask_paths, self.xml_paths):
-            filename = os.path.basename(img_path)
-            unique_data[filename] = (img_path, mask_path, xml_path)
-
-        self.img_paths = []
-        self.mask_paths = []
-        self.xml_paths = []
-
-        for img_path, mask_path, xml_path in unique_data.values():
-            self.img_paths.append(img_path)
-            self.mask_paths.append(mask_path)
-            self.xml_paths.append(xml_path)
-
-        for path in self.xml_paths:
-            tree = ET.parse(path)
-            root = tree.getroot()
-
-            pattern_side = float(root.find("pattern-side").text)
-            self.marker_sides[os.path.basename(path)] = pattern_side
-
-            invalid_area_found = False
-            total_area = 0.0
-
-            for leaf in root.findall("objects/leaf"):
-                area_tag = leaf.find("dimensions/area")
-
-                if area_tag is not None and area_tag.text is not None:
-                    area_text = area_tag.text.strip()
-
-                    try:
-                        total_area += float(area_text)
-                    except ValueError:
-                        print(f"[WARNING] Invalid area in {os.path.basename(path)}: {area_text}")
-                        invalid_area_found = True
-                        break
-                else:
-                    invalid_area_found = True
-                    break
-
-            if invalid_area_found:
-                self.leaf_target_areas[os.path.basename(path)] = -1.0
-            else:
-                self.leaf_target_areas[os.path.basename(path)] = total_area
-
-        print('=========================================')
-        print(f'Base dir: {self.base_dir}')
-        print(f'{self.split} - {len(self.img_paths)}')
-        print(f'Unique {self.split} - {len(set([os.path.basename(p) for p in self.img_paths]))}')
-        print('=========================================')
-
-    def __len__(self):
-        return len(self.img_paths)
 
     def __getitem__(self, idx):
         img_path = self.img_paths[idx]
-        mask_path = self.mask_paths[idx]
-        xml_path = self.xml_paths[idx]
+        mask_path = self._get_mask_path(img_path)
 
         filename = os.path.basename(img_path)
-        if filename not in self.imgs_size:
-            raise KeyError(f"[ERRO] {filename} não encontrado em dataset_consolidado/images")
-
-        orig_w, orig_h = self.imgs_size[filename]
 
         image = Image.open(img_path).convert("RGB")
         mask = Image.open(mask_path).convert("L")
 
-        # ==============================
-        # Data Augmentation (train only)
-        # ==============================
+        # =========================
+        # AUGMENTATION (train)
+        # =========================
         if self.split == "train":
             scale = np.random.uniform(0.75, 1.25)
             new_w, new_h = int(self.img_size * scale), int(self.img_size * scale)
+
             image = TF.resize(image, (new_h, new_w))
             mask = TF.resize(mask, (new_h, new_w), interpolation=Image.NEAREST)
 
@@ -316,13 +101,13 @@ class MultiLeafDataset(Dataset):
                 image = TF.hflip(image)
                 mask = TF.hflip(mask)
 
-    
-            color_jitter = transforms.ColorJitter(
-                brightness=0.08, contrast=0.08, saturation=0.08
+            jitter = transforms.ColorJitter(
+                brightness=0.08,
+                contrast=0.08,
+                saturation=0.08
             )
-            image = color_jitter(image)
+            image = jitter(image)
 
-    
             angle = np.random.uniform(-15, 15)
             image = TF.rotate(image, angle)
             mask = TF.rotate(mask, angle, interpolation=Image.NEAREST)
@@ -331,72 +116,103 @@ class MultiLeafDataset(Dataset):
             image = TF.resize(image, (self.img_size, self.img_size))
             mask = TF.resize(mask, (self.img_size, self.img_size), interpolation=Image.NEAREST)
 
+        # =========================
+        # TO TENSOR
+        # =========================
         image = TF.to_tensor(image)
-        image = TF.normalize(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        image = TF.normalize(image,
+                              mean=[0.485, 0.456, 0.406],
+                              std=[0.229, 0.224, 0.225])
 
         mask = torch.tensor(np.array(mask), dtype=torch.long)
+
         if self.NUM_CLASSES == 2:
             mask = ((mask == 1) | (mask == 2)).long()
         elif self.NUM_CLASSES == 3:
             mask = mask.long()
         else:
-            raise ValueError(f"NUM_CLASSES={self.NUM_CLASSES} not supported. Use 2 ou 3.")
+            raise ValueError("NUM_CLASSES deve ser 2 ou 3")
 
-        pattern_side = 1.0
-        target_area = 1.0
-
-        return image, mask, orig_w, orig_h, filename, pattern_side, target_area
-
-    def _save_imgs(self, fold):
-        current_fold = os.path.join(self.fold_path, f'fold_{fold}.csv')
-        df = pd.read_csv(current_fold)
-
-        todas_instancias = df['Group Image'].str.split(',').explode().str.strip().tolist()
-        df_filtrado = self.comp_df[self.comp_df['Group'].isin(todas_instancias)]
-
-        nomes_arquivos = df_filtrado['Current Name'].tolist()
-
-        self.img_paths.extend([os.path.join(self.img_dir, f) for f in nomes_arquivos])
-
-        self.mask_paths.extend([
-            os.path.join(self.mask_dir, os.path.splitext(f)[0] + ".png")
-            for f in nomes_arquivos
-        ])
-
-        self.xml_paths.extend([
-            os.path.join(self.xml_dir, os.path.splitext(f)[0] + ".xml")
-            for f in nomes_arquivos
-        ])
+        return image, mask, filename
 
 
-if __name__ == '__main__':
-    for f in range(1, 6):
-        train_set = MultiLeafDataset('train', f, val_mode=False)
-        test_set = MultiLeafDataset('test', f, val_mode=False)
+    def _build_fold_image_dict(self, csv_path, dataset_root):
+        fold_dict = defaultdict(list)
 
-    def _save_imgs(self, fold):
-        current_fold = os.path.join(self.fold_path, f'fold_{fold}.csv')
-        df = pd.read_csv(current_fold)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
 
-        todas_instancias = df['Group Image'].str.split(',').explode().str.strip().tolist()
-        df_filtrado = self.comp_df[self.comp_df['Group'].isin(todas_instancias)]
+            for row in reader:
+                fold = int(row["Fold"])
+                image_name = row["Image Name"]
+                specie = row["Specie"].strip()
 
-        nomes_arquivos = df_filtrado['Current Name'].tolist()
+                img_path = os.path.join(
+                    dataset_root,
+                    specie,
+                    "images",
+                    image_name
+                )
 
-        self.img_paths.extend([os.path.join(self.img_dir, f) for f in nomes_arquivos])
+                fold_dict[fold].append(img_path)
 
-        self.mask_paths.extend([
-            os.path.join(self.mask_dir, os.path.splitext(f)[0] + ".png")
-            for f in nomes_arquivos
-        ])
-
-        self.xml_paths.extend([
-            os.path.join(self.xml_dir, os.path.splitext(f)[0] + ".xml")
-            for f in nomes_arquivos
-        ])
+        return dict(fold_dict)
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    print("\n=== DEBUG DATASET ===")
+
     for f in range(1, 6):
-        train_set = MultiLeafDataset('train', f, val_mode=False)
-        test_set = MultiLeafDataset('test', f, val_mode=False)
+        print(f"\n--- FOLD {f} ---")
+
+        dataset = MultiLeafDataset('train', f)
+
+        print(f"Total imagens no fold {f}: {len(dataset)}")
+
+        for i in range(min(5, len(dataset))):
+            img, mask, filename = dataset[i]
+
+            print(f"\n[{i}] {filename}")
+
+            # =====================
+            # checks básicos
+            # =====================
+            print("Image shape:", img.shape)
+            print("Mask shape:", mask.shape)
+
+            unique_vals = torch.unique(mask)
+            print("Mask values:", unique_vals.tolist())
+
+            if mask.sum() == 0:
+                print("⚠️ ALERTA: máscara vazia!")
+
+            # =====================
+            # sanity check shapes
+            # =====================
+            assert img.shape[1:] == (512, 512), "Imagem não está 512x512"
+            assert mask.shape == (512, 512), "Máscara não está 512x512"
+
+            # =====================
+            # visual debug (opcional)
+            # =====================
+            img_np = img.permute(1, 2, 0).numpy()
+            img_np = (img_np - img_np.min()) / (img_np.max() - img_np.min() + 1e-8)
+
+            plt.figure(figsize=(8, 4))
+
+            plt.subplot(1, 2, 1)
+            plt.title("Image")
+            plt.imshow(img_np)
+            plt.axis("off")
+
+            plt.subplot(1, 2, 2)
+            plt.title("Mask")
+            plt.imshow(mask.numpy(), cmap="gray")
+            plt.axis("off")
+
+            plt.tight_layout()
+            plt.show()
+
+        print("\n✔ Fold OK\n")

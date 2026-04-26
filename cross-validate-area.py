@@ -3,24 +3,14 @@ import csv
 import numpy as np
 import torch
 
-from mypath import Path
-from dataloaders.datasets import multi_leaf
 from torch.utils.data import DataLoader
-from utils.calculate_weights import compute_class_weights
-
-from utils.loss import SegmentationLosses, LovaszSoftmax
+from utils.loss import SegmentationLosses
 from utils.metrics import Evaluator
-from utils.lr_scheduler import LR_Scheduler
 from torch.optim.lr_scheduler import PolynomialLR
 from utils.color import C
 
 from modeling.deeplab_seg import DeepLab
-
-from utils.area_calc import calculate_leaf_area
-
-
-# ===== Colored logs =====
-
+from dataloaders.datasets.multi_leaf import MultiLeafDataset
 
 
 class CrossValidator:
@@ -28,32 +18,31 @@ class CrossValidator:
     def __init__(self, args):
 
         self.args = args
-        self.val_mode = args.val_mode
-        self.area_mode = args.area_mode
 
         print(f"{C.CYAN}[DEBUG] Dataset: {args.dataset}{C.END}")
 
         torch.manual_seed(args.seed)
-        np.random.seed(args.seed)  
+        np.random.seed(args.seed)
 
         self.num_class = args.num_class
 
         print(
-            f"{C.BOLD}{C.GREEN}✔ Number of classes detected:{C.END} "
+            f"{C.BOLD}{C.GREEN}✔ Number of classes:{C.END} "
             f"{C.YELLOW}{self.num_class}{C.END}"
         )
 
-        # ===== CSV logging =====
-
+        # ===== CSV LOG =====
         os.makedirs("results", exist_ok=True)
 
         self.csv_path = "results/training_metrics.csv"
 
         with open(self.csv_path, "w", newline="") as f:
             writer = csv.writer(f)
+
             header = [
-                "fold", "epoch", "learning_rate", "train_loss",
-                "val_loss", "val_miou", "val_accuracy"
+                "fold", "epoch", "learning_rate",
+                "train_loss", "val_loss",
+                "val_miou", "val_accuracy"
             ]
 
             for i in range(self.num_class):
@@ -62,20 +51,14 @@ class CrossValidator:
             writer.writerow(header)
 
         os.makedirs("crossval_models", exist_ok=True)
-        os.makedirs('all_models_no_area', exist_ok=True)
-    
-    def save_area_results_csv(self, fold, area_results):
-        output_path = f"results/area_results_fold_{fold}.csv"
+        os.makedirs("all_models_no_area", exist_ok=True)
 
-        with open(output_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["filename", "predicted_area_cm2", "target_area_cm2", "abs_error_cm2"])
+        # loss
+        self.seg_loss = SegmentationLosses(
+            weight=None,
+            cuda=args.cuda
+        ).build_loss('ce')
 
-            for filename, pred_area, target_area in area_results:
-                abs_error = abs(pred_area - target_area)
-                writer.writerow([filename, pred_area, target_area, abs_error])
-
-        print(f"{C.GREEN}✔ Area results saved:{C.END} {output_path}")
 
     def training_loop(self):
 
@@ -83,44 +66,28 @@ class CrossValidator:
         device = 'cuda' if self.args.cuda else 'cpu'
 
         fold_results = {
-            'MIoU':[],
-            'Area_MAE':[],
+            'MIoU': [],
             'IoU_per_class': []
         }
 
         for fold in range(1, NUM_FOLDS + 1):
 
             print(f"\n{C.BOLD}{C.HEADER}============================{C.END}")
-            print(f"{C.BOLD}{C.HEADER}STARTING FOLD {fold}{C.END}")
+            print(f"{C.BOLD}{C.HEADER}FOLD {fold}{C.END}")
             print(f"{C.BOLD}{C.HEADER}============================{C.END}")
 
             evaluator = Evaluator(self.num_class)
 
-            train_set = multi_leaf.MultiLeafDataset('train', fold, val_mode=self.val_mode, num_classes=self.num_class)
-            if self.val_mode:
-                val_set   = multi_leaf.MultiLeafDataset('val', fold, val_mode=self.val_mode, num_classes=self.num_class)
-            test_set  = multi_leaf.MultiLeafDataset('test', fold, val_mode=self.val_mode, num_classes=self.num_class)
+            train_set = MultiLeafDataset('train', fold, num_classes=self.num_class)
+            val_set   = MultiLeafDataset('val', fold, num_classes=self.num_class)
+            test_set  = MultiLeafDataset('test', fold, num_classes=self.num_class)
 
-                # ===== Loss =====
-            #weights = compute_class_weights(train_set, self.num_class, self.args.cuda)
-            self.seg_loss = SegmentationLosses(
-                weight=None,
-                cuda=self.args.cuda
-            ).build_loss('ce')
-
-            if self.val_mode:
-                print(
-                    f"{C.CYAN}Dataset sizes → "
-                    f"Train: {len(train_set)} | "
-                    f"Val: {len(val_set)} | "
-                    f"Test: {len(test_set)}{C.END}"
-                )
-            else:
-                print(
-                    f"{C.CYAN}Dataset sizes → "
-                    f"Train: {len(train_set)} | "
-                    f"Test: {len(test_set)}{C.END}"
-                )
+            print(
+                f"{C.CYAN}Dataset sizes → "
+                f"Train: {len(train_set)} | "
+                f"Val: {len(val_set)} | "
+                f"Test: {len(test_set)}{C.END}"
+            )
 
             train_loader = DataLoader(
                 train_set,
@@ -128,14 +95,13 @@ class CrossValidator:
                 shuffle=True,
                 num_workers=self.args.workers
             )
-            
-            if self.val_mode:
-                val_loader = DataLoader(
-                    val_set,
-                    batch_size=self.args.batch_size,
-                    shuffle=False,
-                    num_workers=self.args.workers
-                )
+
+            val_loader = DataLoader(
+                val_set,
+                batch_size=self.args.batch_size,
+                shuffle=False,
+                num_workers=self.args.workers
+            )
 
             test_loader = DataLoader(
                 test_set,
@@ -144,6 +110,7 @@ class CrossValidator:
                 num_workers=self.args.workers
             )
 
+            # ===== MODEL =====
             model = DeepLab(
                 num_classes=self.num_class,
                 backbone=self.args.backbone,
@@ -153,8 +120,7 @@ class CrossValidator:
             )
 
             if self.args.cuda:
-                model = torch.nn.DataParallel(model, self.args.gpu_ids)
-                model = model.cuda()
+                model = torch.nn.DataParallel(model, self.args.gpu_ids).cuda()
             else:
                 model = model.to(device)
 
@@ -167,35 +133,25 @@ class CrossValidator:
             scheduler = PolynomialLR(
                 optimizer,
                 total_iters=self.args.epochs,
-                power=0.9  
+                power=0.9
             )
 
             best_val_miou = -1
 
-            if self.val_mode:
-                model_path = f"crossval_models/best_model_fold_{fold}.pth"
-            else:
-                model_path = f"all_models_no_area/model_fold_{fold}.pth"
+            model_path = f"crossval_models/best_model_fold_{fold}.pth"
 
+            # ===== EPOCHS =====
             for epoch in range(self.args.epochs):
 
-                current_lr = optimizer.param_groups[0]['lr']
-                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END} | {C.CYAN}LR: {current_lr:.6f}{C.END}")
+                lr = optimizer.param_groups[0]['lr']
+
+                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END} | LR: {lr:.6f}")
 
                 # ===== TRAIN =====
-
                 model.train()
                 train_loss = 0
 
-                for batch_idx, (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in enumerate(train_loader):
-
-                    if batch_idx % 100 == 0:
-
-                        print(
-                            f"{C.YELLOW}[Batch {batch_idx}] "
-                            f"Images shape: {images.shape} "
-                            f"Masks shape: {masks.shape}{C.END}"
-                        )
+                for batch_idx, (images, masks, filename) in enumerate(train_loader):
 
                     images = images.to(device)
                     masks = masks.to(device)
@@ -203,7 +159,6 @@ class CrossValidator:
                     optimizer.zero_grad()
 
                     preds = model(images)
-
                     loss = self.seg_loss(preds, masks)
 
                     loss.backward()
@@ -214,248 +169,135 @@ class CrossValidator:
                 train_loss /= len(train_loader)
 
                 # ===== VALIDATION =====
-                val_loss = None
-                val_miou = None
-                val_acc = None
-                if self.val_mode:
-                    model.eval()
-                    val_loss = 0
+                model.eval()
+                val_loss = 0
+                evaluator.reset()
 
-                    evaluator.reset()
+                with torch.no_grad():
 
-                    with torch.no_grad():
+                    for images, masks, filename in val_loader:
 
-                        for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in val_loader:
+                        images = images.to(device)
+                        masks = masks.to(device)
 
-                            images = images.to(device)
-                            masks = masks.to(device)
+                        preds = model(images)
 
-                            preds = model(images)
+                        loss = self.seg_loss(preds, masks)
+                        val_loss += loss.item()
 
-                            loss = self.seg_loss(preds, masks)
+                        preds = np.argmax(preds.cpu().numpy(), axis=1)
+                        masks = masks.cpu().numpy()
 
-                            val_loss += loss.item()
+                        evaluator.add_batch(masks, preds)
 
-                            preds_np = preds.detach().cpu().numpy()
-                            masks_np = masks.detach().cpu().numpy()
+                val_loss /= len(val_loader)
 
-                            pred = np.argmax(preds_np, axis=1)
+                val_miou = evaluator.Mean_Intersection_over_Union()
+                val_acc = evaluator.Pixel_Accuracy()
 
-                            evaluator.add_batch(masks_np, pred)
+                ious = np.nan_to_num(evaluator.IoU_per_class())
 
-                    val_loss /= len(val_loader)
+                for i, iou in enumerate(ious):
+                    print(f"IoU class {i}: {iou:.4f}")
 
-                    val_miou = evaluator.Mean_Intersection_over_Union()
-                    val_acc = evaluator.Pixel_Accuracy()
-                    if self.num_class == 3:
-                        class_names = ["background", "leaf", "marker"]
-                    elif self.num_class == 2:
-                        class_names = ["background", "leaf"]
-                    else:
-                        class_names = [f"class_{i}" for i in range(self.num_class)]
+                print(
+                    f"{C.GREEN}Train:{C.END} {train_loss:.4f} | "
+                    f"{C.YELLOW}Val:{C.END} {val_loss:.4f} | "
+                    f"{C.CYAN}mIoU:{C.END} {val_miou:.4f} | "
+                    f"{C.BLUE}Acc:{C.END} {val_acc:.4f}"
+                )
 
-                    ious = evaluator.IoU_per_class()
-                    ious = np.nan_to_num(ious)
-
-                    for i, iou in enumerate(ious):
-                        print(f"IoU {class_names[i]}: {iou:.4f}")
-
-                    print(
-                        f"{C.GREEN}Train Loss:{C.END} {train_loss:.4f} | "
-                        f"{C.YELLOW}Val Loss:{C.END} {val_loss:.4f} | "
-                        f"{C.CYAN}Val mIoU:{C.END} {val_miou:.4f} | "
-                        f"{C.BLUE}Val Acc:{C.END} {val_acc:.4f}"
-                    )
-
-                # ===== Save metrics =====
-
+                # ===== CSV =====
                 with open(self.csv_path, "a", newline="") as f:
                     writer = csv.writer(f)
+
                     row = [
                         fold,
                         epoch + 1,
-                        current_lr,
+                        lr,
                         train_loss,
-                        val_loss if val_loss is not None else "",
-                        val_miou if val_miou is not None else "",
-                        val_acc if val_acc is not None else "",
+                        val_loss,
+                        val_miou,
+                        val_acc
                     ]
 
-                    if self.val_mode:
-                        for i in range(self.num_class):
-                            row.append(ious[i])
-                    else:
-                        row.extend([""] * self.num_class)
+                    for i in range(self.num_class):
+                        row.append(ious[i])
 
                     writer.writerow(row)
 
-                if self.val_mode:
-                    if val_miou > best_val_miou:
-                        best_val_miou = val_miou
-                        torch.save(model.state_dict(), model_path)
-                        print(f"{C.GREEN}✔ Best model updated (mIoU){C.END}")
-                else:
+                # save best
+                if val_miou > best_val_miou:
+                    best_val_miou = val_miou
                     torch.save(model.state_dict(), model_path)
-                
+                    print(f"{C.GREEN}✔ Best model updated{C.END}")
+
                 scheduler.step()
 
             # ===== TEST =====
-
-            print(f"\n{C.CYAN}Testing best model...{C.END}")
+            print(f"\n{C.CYAN}Testing fold {fold}...{C.END}")
 
             model.load_state_dict(torch.load(model_path))
-
             model.eval()
             evaluator.reset()
 
             with torch.no_grad():
 
-                for (images, masks, orig_w, orig_h, filename, pattern_side, target_area) in test_loader:
+                for images, masks, filename in test_loader:
 
                     images = images.to(device)
                     masks = masks.to(device)
 
                     preds = model(images)
 
-                    preds = preds.detach().cpu().numpy()
-                    masks = masks.detach().cpu().numpy()
+                    preds = np.argmax(preds.cpu().numpy(), axis=1)
+                    masks = masks.cpu().numpy()
 
-                    pred = np.argmax(preds, axis=1)
-
-                    evaluator.add_batch(masks, pred)
-
-                    if self.area_mode:
-                        for i in range(pred.shape[0]):
-                            pred_mask = pred[i]
-                            ow = int(orig_w[i])
-                            oh = int(orig_h[i])
-                            ps = float(pattern_side[i])
-                            ta = float(target_area[i])
-                            fn = filename[i]
-
-                            area_info = calculate_leaf_area(
-                                mask=pred_mask,
-                                pattern_side=ps,
-                                orig_w=ow,
-                                orig_h=oh
-                            )
-
-                            predicted_area = area_info["total_leaf_area_cm2"]
-
-                            if predicted_area is not None and ta > 0:
-                                evaluator.multileaf_area_results.append([fn, predicted_area, ta])
+                    evaluator.add_batch(masks, preds)
 
             mIoU = evaluator.Mean_Intersection_over_Union()
-
-            if self.num_class == 3:
-                class_names = ["background", "leaf", "marker"]
-            elif self.num_class == 2:
-                class_names = ["background", "leaf"]
-            else:
-                class_names = [f"class_{i}" for i in range(self.num_class)]
-
-            ious_test = evaluator.IoU_per_class()
-            ious_test = np.nan_to_num(ious_test)
-
-            for i, iou in enumerate(ious_test):
-                print(f"[TEST] IoU {class_names[i]}: {iou:.4f}")
-
-            if self.area_mode:
-                area_mae = evaluator.calculate_mae()
-            
-            if self.area_mode:
-                self.save_area_results_csv(fold, evaluator.multileaf_area_results)
+            ious = np.nan_to_num(evaluator.IoU_per_class())
 
             print(f"{C.BOLD}{C.YELLOW}Fold {fold} mIoU:{C.END} {mIoU:.4f}")
+
             fold_results["MIoU"].append(mIoU)
-            fold_results["IoU_per_class"].append(ious_test)
-            
-            if self.area_mode:
-                print(f'{C.BOLD}{C.GREEN}Area MAE: {C.END}{area_mae}')
-                fold_results["Area_MAE"].append(area_mae)      
-                # ===== Save fold results to a txt file =====
-                fold_results_path = f"results/fold_{fold}_w_area_results.txt"
+            fold_results["IoU_per_class"].append(ious)
 
-                with open(fold_results_path, "w") as f:
-                    f.write(f"Fold {fold} results\n")
-                    f.write(f"mIoU: {mIoU:.6f}\n")
-                    f.write(f"Area MAE: {area_mae:.6f}\n")
-                    for i, iou in enumerate(ious_test):
-                        f.write(f"IoU {class_names[i]}: {iou:.6f}\n")
+        # ===== FINAL =====
+        print(f"\n{C.BOLD}{C.HEADER}CROSS VALIDATION RESULT{C.END}")
 
-                print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
-            else:  
-                # ===== Save fold results to a txt file =====
-                fold_results_path = f"results/fold_{fold}_results.txt"
+        for i, res in enumerate(fold_results["MIoU"]):
+            print(f"Fold {i+1}: {res:.4f}")
 
-                with open(fold_results_path, "w") as f:
-                    f.write(f"Fold {fold} results\n")
-                    f.write(f"mIoU: {mIoU:.6f}\n")
-                    for i, iou in enumerate(ious_test):
-                        f.write(f"IoU {class_names[i]}: {iou:.6f}\n")
-
-                print(f"{C.GREEN}✔ Fold results saved to:{C.END} {fold_results_path}")
-
-            
-        # ===== FINAL RESULTS =====
-
-        print(f"\n{C.BOLD}{C.HEADER}================================={C.END}")
-        print(f"{C.BOLD}{C.HEADER}CROSS VALIDATION RESULTS{C.END}")
-        print(f"{C.BOLD}{C.HEADER}================================={C.END}")
-
-        for i, res in enumerate(fold_results['MIoU']):
-            print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
-
-        for i, res in enumerate(fold_results["Area_MAE"]):
-            print(f"{C.YELLOW}Fold {i+1}:{C.END} {res:.4f}")
-
-        print(f"\n{C.BOLD}{C.GREEN}Mean mIoU:{C.END} {np.mean(fold_results['MIoU']):.4f}")
-
-        if self.area_mode:
-            print(f"\n{C.BOLD}{C.GREEN}Mean MAE:{C.END} {np.mean(fold_results['Area_MAE']):.4f}")
+        print(f"\nMean mIoU: {np.mean(fold_results['MIoU']):.4f}")
 
 
 class Args:
-
     dataset = "multi_leaf"
     backbone = "xception"
     out_stride = 16
 
     workers = 0
-
     epochs = 70
     batch_size = 2
 
     lr = 0.0003
-    momentum = 0.9
     weight_decay = 5e-4
-    nesterov = False
-
-    step_size = 15
-    gamma = 0.1
 
     no_cuda = False
     gpu_ids = [0]
-
     seed = 1
-
     sync_bn = None
+    num_class = 2
 
-    val_mode = True
-
-    area_mode = False
-
-    num_class = 2   
 
 def main():
 
     args = Args()
-
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-    cross_validation = CrossValidator(args)
-
-    cross_validation.training_loop()
+    trainer = CrossValidator(args)
+    trainer.training_loop()
 
 
 if __name__ == "__main__":
