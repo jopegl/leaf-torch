@@ -8,6 +8,7 @@ from utils.loss import SegmentationLosses
 from utils.metrics import Evaluator
 from torch.optim.lr_scheduler import PolynomialLR
 from utils.color import C
+from tqdm import tqdm
 
 from modeling.deeplab_seg import DeepLab
 from dataloaders.datasets.multi_leaf import MultiLeafDataset
@@ -31,9 +32,7 @@ class CrossValidator:
             f"{C.YELLOW}{self.num_class}{C.END}"
         )
 
-        # ===== CSV LOG =====
         os.makedirs("results", exist_ok=True)
-
         self.csv_path = "results/training_metrics.csv"
 
         with open(self.csv_path, "w", newline="") as f:
@@ -51,9 +50,7 @@ class CrossValidator:
             writer.writerow(header)
 
         os.makedirs("crossval_models", exist_ok=True)
-        os.makedirs("all_models_no_area", exist_ok=True)
 
-        # loss
         self.seg_loss = SegmentationLosses(
             weight=None,
             cuda=args.cuda
@@ -61,7 +58,7 @@ class CrossValidator:
 
 
     def training_loop(self):
-
+        print('treino começou...')
         NUM_FOLDS = 5
         device = 'cuda' if self.args.cuda else 'cpu'
 
@@ -89,28 +86,10 @@ class CrossValidator:
                 f"Test: {len(test_set)}{C.END}"
             )
 
-            train_loader = DataLoader(
-                train_set,
-                batch_size=self.args.batch_size,
-                shuffle=True,
-                num_workers=self.args.workers
-            )
+            train_loader = DataLoader(train_set, batch_size=self.args.batch_size, shuffle=True, num_workers=self.args.workers)
+            val_loader = DataLoader(val_set, batch_size=self.args.batch_size, shuffle=False, num_workers=self.args.workers)
+            test_loader = DataLoader(test_set, batch_size=self.args.batch_size, shuffle=False, num_workers=self.args.workers)
 
-            val_loader = DataLoader(
-                val_set,
-                batch_size=self.args.batch_size,
-                shuffle=False,
-                num_workers=self.args.workers
-            )
-
-            test_loader = DataLoader(
-                test_set,
-                batch_size=self.args.batch_size,
-                shuffle=False,
-                num_workers=self.args.workers
-            )
-
-            # ===== MODEL =====
             model = DeepLab(
                 num_classes=self.num_class,
                 backbone=self.args.backbone,
@@ -124,35 +103,26 @@ class CrossValidator:
             else:
                 model = model.to(device)
 
-            optimizer = torch.optim.AdamW(
-                model.parameters(),
-                lr=self.args.lr,
-                weight_decay=self.args.weight_decay
-            )
+            optimizer = torch.optim.AdamW(model.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
 
-            scheduler = PolynomialLR(
-                optimizer,
-                total_iters=self.args.epochs,
-                power=0.9
-            )
+            scheduler = PolynomialLR(optimizer, total_iters=self.args.epochs, power=0.9)
 
             best_val_miou = -1
-
             model_path = f"crossval_models/best_model_fold_{fold}.pth"
 
-            # ===== EPOCHS =====
-            for epoch in range(self.args.epochs):
+            # ===== EPOCH LOOP =====
+            epoch_bar = tqdm(range(self.args.epochs), desc=f"Fold {fold} - Epochs")
+
+            for epoch in epoch_bar:
 
                 lr = optimizer.param_groups[0]['lr']
 
-                print(f"\n{C.BOLD}{C.BLUE}Epoch {epoch+1}/{self.args.epochs}{C.END} | LR: {lr:.6f}")
-
-                # ===== TRAIN =====
                 model.train()
                 train_loss = 0
 
-                for batch_idx, (images, masks, filename) in enumerate(train_loader):
+                train_bar = tqdm(train_loader, desc="Train", leave=False)
 
+                for images, masks, filename in train_bar:
                     images = images.to(device)
                     masks = masks.to(device)
 
@@ -165,6 +135,8 @@ class CrossValidator:
                     optimizer.step()
 
                     train_loss += loss.item()
+                    train_bar.set_postfix(loss=loss.item())
+                    
 
                 train_loss /= len(train_loader)
 
@@ -174,9 +146,7 @@ class CrossValidator:
                 evaluator.reset()
 
                 with torch.no_grad():
-
-                    for images, masks, filename in val_loader:
-
+                    for images, masks, filename in tqdm(val_loader, desc="Val", leave=False):
                         images = images.to(device)
                         masks = masks.to(device)
 
@@ -194,43 +164,36 @@ class CrossValidator:
 
                 val_miou = evaluator.Mean_Intersection_over_Union()
                 val_acc = evaluator.Pixel_Accuracy()
-
                 ious = np.nan_to_num(evaluator.IoU_per_class())
 
-                for i, iou in enumerate(ious):
-                    print(f"IoU class {i}: {iou:.4f}")
-
+                # atualiza barra principal
+                epoch_bar.set_postfix({
+                    "train_loss": f"{train_loss:.3f}",
+                    "val_loss": f"{val_loss:.3f}",
+                    "mIoU": f"{val_miou:.3f}"
+                })
                 print(
-                    f"{C.GREEN}Train:{C.END} {train_loss:.4f} | "
-                    f"{C.YELLOW}Val:{C.END} {val_loss:.4f} | "
-                    f"{C.CYAN}mIoU:{C.END} {val_miou:.4f} | "
-                    f"{C.BLUE}Acc:{C.END} {val_acc:.4f}"
+                    f"[Fold {fold} | Epoch {epoch+1}] "
+                    f"Train Loss: {train_loss:.4f} | "
+                    f"Val Loss: {val_loss:.4f} | "
+                    f"mIoU: {val_miou:.4f} | "
+                    f"Acc: {val_acc:.4f}"
                 )
 
                 # ===== CSV =====
                 with open(self.csv_path, "a", newline="") as f:
                     writer = csv.writer(f)
 
-                    row = [
-                        fold,
-                        epoch + 1,
-                        lr,
-                        train_loss,
-                        val_loss,
-                        val_miou,
-                        val_acc
-                    ]
-
+                    row = [fold, epoch + 1, lr, train_loss, val_loss, val_miou, val_acc]
                     for i in range(self.num_class):
                         row.append(ious[i])
 
                     writer.writerow(row)
 
-                # save best
                 if val_miou > best_val_miou:
                     best_val_miou = val_miou
                     torch.save(model.state_dict(), model_path)
-                    print(f"{C.GREEN}✔ Best model updated{C.END}")
+                    print('best model saved')
 
                 scheduler.step()
 
@@ -242,9 +205,7 @@ class CrossValidator:
             evaluator.reset()
 
             with torch.no_grad():
-
-                for images, masks, filename in test_loader:
-
+                for images, masks, filename in tqdm(test_loader, desc="Test", leave=False):
                     images = images.to(device)
                     masks = masks.to(device)
 
@@ -263,7 +224,6 @@ class CrossValidator:
             fold_results["MIoU"].append(mIoU)
             fold_results["IoU_per_class"].append(ious)
 
-        # ===== FINAL =====
         print(f"\n{C.BOLD}{C.HEADER}CROSS VALIDATION RESULT{C.END}")
 
         for i, res in enumerate(fold_results["MIoU"]):
@@ -277,7 +237,7 @@ class Args:
     backbone = "xception"
     out_stride = 16
 
-    workers = 0
+    workers = 6
     epochs = 70
     batch_size = 2
 

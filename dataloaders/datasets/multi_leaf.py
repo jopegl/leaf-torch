@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 import torchvision.transforms as transforms
 from collections import defaultdict
 import csv
+from pathlib import Path
 
 
 def get_base_dir():
@@ -41,19 +42,26 @@ class MultiLeafDataset(Dataset):
         # monta folds
         folds = self._build_fold_image_dict(fold_csv, dataset_root)
 
+        self.val_fold = (self.fold % 5) + 1
+
         if self.split == 'train':
-            self.img_paths = folds[self.fold]
-
-        elif self.split == 'val':
-            self.val_fold = 5 if self.fold != 5 else 1
-            self.img_paths = folds[self.val_fold]
-
-        else:
             self.img_paths = []
             for f in range(1, 6):
-                if f != self.fold and f != getattr(self, "val_fold", -1):
+                if f != self.fold and f != self.val_fold:
                     self.img_paths += folds[f]
 
+        elif self.split == 'val':
+            self.img_paths = folds[self.val_fold]
+
+        elif self.split == 'test':
+            self.img_paths = folds[self.fold]
+
+        if split == 'test':
+            print(f'Numero de imagens do fold {self.fold}: ',len(self.img_paths))
+        elif split == 'val':
+            print(f'Numero de imagens do fold {self.val_fold}: ',len(self.img_paths))
+        else:
+            print(f'resto: {len(self.img_paths)}')
 
     def __len__(self):
         return len(self.img_paths)
@@ -139,20 +147,23 @@ class MultiLeafDataset(Dataset):
     def _build_fold_image_dict(self, csv_path, dataset_root):
         fold_dict = defaultdict(list)
 
+        image_index = {}
+
+        for img_path in Path(dataset_root).rglob("*.jpg"):
+            image_index[img_path.name] = str(img_path)
+
         with open(csv_path, newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
 
             for row in reader:
-                fold = int(row["Fold"])
-                image_name = row["Image Name"]
-                specie = row["Specie"].strip()
+                fold = int(row["fold"]) + 1
+                image_name = row["image_name"] + ".jpg"
 
-                img_path = os.path.join(
-                    dataset_root,
-                    specie,
-                    "images",
-                    image_name
-                )
+                img_path = image_index.get(image_name)
+
+                if img_path is None:
+                    print(f"Imagem não encontrada: {image_name}")
+                    continue
 
                 fold_dict[fold].append(img_path)
 
