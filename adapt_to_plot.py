@@ -57,6 +57,18 @@ def adapt_to_plot():
             "method_RER": r["length_method_rer"],
         })
 
+        # WIDTH
+        rows.append({
+        **base,
+        "metric": "width",
+        "real": r["real_width_cm"],
+        "annot": r["width_annot"],
+        "pred": r["pred_width_cm"],
+        "annot_RER": r["width_annot_rer"],
+        "pred_RER": r["width_rer"],
+        "method_RER": r["width_method_rer"],
+        })
+
     # Novo DataFrame
     df_new = pd.DataFrame(rows)
 

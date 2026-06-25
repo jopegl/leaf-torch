@@ -7,33 +7,43 @@ import cv2
 import torchvision.transforms.functional as TF
 import numpy as np
 import time
+from pathlib import Path
 
 MODEL_ALL_PATH = {
-    1: 'pos-correcoes/crossval_models/best_model_fold_1.pth',
-    2: 'pos-correcoes/crossval_models/best_model_fold_2.pth',
-    3: 'pos-correcoes/crossval_models/best_model_fold_3.pth',
-    4: 'pos-correcoes/crossval_models/best_model_fold_4.pth',
-    5: 'pos-correcoes/crossval_models/best_model_fold_5.pth'
+    1: 'sprint-final/crossval_models/best_model_fold_1.pth',
+    2: 'sprint-final/crossval_models/best_model_fold_2.pth',
+    3: 'sprint-final/crossval_models/best_model_fold_3.pth',
+    4: 'sprint-final/crossval_models/best_model_fold_4.pth',
+    5: 'sprint-final/crossval_models/best_model_fold_5.pth'
 }
 
 # =========================
 # BUILD DICT
 # =========================
 def build_fold_image_dict(csv_path, dataset_root):
-    fold_dict = defaultdict(list)
+        fold_dict = defaultdict(list)
 
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+        image_index = {}
 
-        for row in reader:
-            fold = int(row["Fold"])
-            image_name = row["Image Name"]
-            specie = row["Specie"].strip()
+        for img_path in Path(dataset_root).rglob("*.jpg"):
+            image_index[img_path.name] = str(img_path)
 
-            img_path = os.path.join(dataset_root, specie, "images", image_name)
-            fold_dict[fold].append(img_path)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
 
-    return dict(fold_dict)
+            for row in reader:
+                fold = int(row["fold"]) + 1
+                image_name = row["image_name"] + ".jpg"
+
+                img_path = image_index.get(image_name)
+
+                if img_path is None:
+                    print(f"Imagem não encontrada: {image_name}")
+                    continue
+
+                fold_dict[fold].append(img_path)
+
+        return dict(fold_dict)
 
 # =========================
 # PREPROCESS
@@ -73,7 +83,7 @@ def create_overlay(image, mask):
 # =========================
 print("\n🚀 Iniciando inferência...\n")
 
-fold_img_dict = build_fold_image_dict('folds.csv', 'pos-correcoes/multileaf_dataset')
+fold_img_dict = build_fold_image_dict('folds.csv', 'sprint-final/multileaf_dataset')
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"🖥️ Device: {device}")

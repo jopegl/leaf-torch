@@ -8,10 +8,19 @@ def complete_csv():
     rer_cols = [
         "area_rer",
         "area_annot_rer",
+        "area_method_rer",
+
         "pred_perimeter_rer",
         "perim_annot_rer",
+        "perim_method_rer",
+
         "length_rer",
-        "length_annot_rer"
+        "length_annot_rer",
+        "length_method_rer",
+
+        "width_rer",
+        "width_annot_rer",
+        'width_method_rer'
     ]
 
     def detect_outliers_iqr(series):
