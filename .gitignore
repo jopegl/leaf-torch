@@ -147,3 +147,12 @@ poly_test_images
 2_classes_test_images
 resultados_experimentos
 utils/graphics
+pos-correcoes
+plots
+preds
+debug_markers
+sobreposicoes
+high_rer_debug
+small_tests.ipynb
+plots_pos_mudancas
+merged_debug
